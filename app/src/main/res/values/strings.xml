@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Viralicious</string>
+    <string name="hint_topic">Topic or Keyword</string>
+
 </resources>
