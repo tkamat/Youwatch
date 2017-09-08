@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="planets_array">
+        <item>1,000</item>
+        <item>10,000</item>
+        <item>100,000</item>
+        <item>500,000</item>
+        <item>1,000,000</item>
+        <item>5,000,000</item>
+        <item>10,000,000</item>
+        <item>Custom</item>
+    </string-array>
+</resources>
