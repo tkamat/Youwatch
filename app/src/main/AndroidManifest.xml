@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
-          package="com.tkamat.android.viralicious"
+          package="com.tkamat.android.cyou"
 >
 
     <application android:allowBackup="true"
@@ -9,7 +9,9 @@
                  android:roundIcon="@mipmap/ic_launcher_round"
                  android:supportsRtl="true"
                  android:theme="@style/AppTheme">
-        <activity android:name=".TopicPickerActivity">
+        <activity android:name="com.tkamat.android.cyou.TopicPickerActivity">
+        </activity>
+        <activity android:name="com.tkamat.android.cyou.TopicRecyclerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

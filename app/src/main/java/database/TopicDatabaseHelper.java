@@ -3,7 +3,6 @@ package database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.tkamat.android.viralicious.Topic;
 
 import static database.TopicDatabaseSchema.*;
 
@@ -21,6 +20,7 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("create table " + TopicTable.NAME + "(" +
                 " _id integer primary key autoincrement, " +
+                TopicTable.Cols.UUID + ", " +
                 TopicTable.Cols.TOPIC + ", " +
                 TopicTable.Cols.VIEWS + ")"
         );

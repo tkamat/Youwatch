@@ -1,13 +1,17 @@
-package com.tkamat.android.viralicious;
+package com.tkamat.android.cyou;
 
+
+import java.util.UUID;
 
 public class Topic {
+    private UUID mID;
     private String mTopicName;
     private int mMinViews;
 
     public Topic(String mTopicName, int mMinViews) {
         this.mTopicName = mTopicName;
         this.mMinViews = mMinViews;
+        this.mID = UUID.randomUUID();
     }
 
     public String getmTopicName() {
@@ -24,5 +28,13 @@ public class Topic {
 
     public void setmMinViews(int mMinViews) {
         this.mMinViews = mMinViews;
+    }
+
+    public UUID getmID() {
+        return mID;
+    }
+
+    public void setmID(UUID mID) {
+        this.mID = mID;
     }
 }

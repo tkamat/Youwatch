@@ -1,8 +1,11 @@
-package com.tkamat.android.viralicious;
+package com.tkamat.android.cyou;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import database.TopicDatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TopicList {
     private static TopicList sTopicList;
@@ -21,5 +24,12 @@ public class TopicList {
             return sTopicList;
     }
 
+    public List<Topic> getTopics() {
+        List<Topic> test = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            test.add(new Topic("Topic" + i, 1000*i));
+        }
+        return test;
+    }
 
 }

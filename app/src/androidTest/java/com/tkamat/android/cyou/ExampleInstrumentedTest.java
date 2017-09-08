@@ -1,4 +1,4 @@
-package com.tkamat.android.viralicious;
+package com.tkamat.android.cyou;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
