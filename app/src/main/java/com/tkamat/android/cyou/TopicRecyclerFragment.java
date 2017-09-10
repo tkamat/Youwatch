@@ -3,7 +3,9 @@ package com.tkamat.android.cyou;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -54,28 +56,30 @@ public class TopicRecyclerFragment extends Fragment {
         }
     }
 
-    private class TopicHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class TopicHolder extends RecyclerView.ViewHolder {
         private Topic mTopic;
         private TextView mTopicText;
         private TextView mMinimumViews;
+        private ConstraintLayout mConstraintLayout;
 
         public TopicHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_topic, parent, false));
             mTopicText = (TextView) itemView.findViewById(R.id.topic_text);
             mMinimumViews = (TextView) itemView.findViewById(R.id.minimum_views);
-            itemView.setOnClickListener(this);
+            mConstraintLayout = (ConstraintLayout) itemView.findViewById(R.id.constraint_layout);
+            mConstraintLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = TopicPickerActivity.newIntent(getActivity(), mTopic.getmID());
+                    startActivity(intent);
+                }
+            });
         }
 
         public void bind(Topic topic) {
             mTopic = topic;
             mTopicText.setText(mTopic.getmTopicName());
             mMinimumViews.setText(mTopic.getmMinViews() + " views minimum");
-        }
-
-        @Override
-        public void onClick(View view) {
-            Intent intent = TopicPickerActivity.newIntent(getActivity(), mTopic.getmID());
-            startActivity(intent);
         }
     }
 
