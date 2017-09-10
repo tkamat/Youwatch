@@ -11,7 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import java.util.UUID;
 
 public class TopicPickerActivity extends AppCompatActivity {
-    public static final String EXTRA_TOPIC_ID = "topic_id";
+
+    public static final String EXTRA_TOPIC_ID = "extra_topic_ID";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -22,7 +23,7 @@ public class TopicPickerActivity extends AppCompatActivity {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
-            fragment = TopicPickerFragment.newInstance();
+            fragment = TopicPickerFragment.newInstance((UUID) getIntent().getSerializableExtra(EXTRA_TOPIC_ID));
             fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
         }
     }
