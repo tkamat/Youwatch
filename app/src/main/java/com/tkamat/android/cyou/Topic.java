@@ -14,6 +14,12 @@ public class Topic {
         this.mID = UUID.randomUUID();
     }
 
+    public Topic(String mTopicName, int mMinViews, UUID mID) {
+        this.mID = mID;
+        this.mTopicName = mTopicName;
+        this.mMinViews = mMinViews;
+    }
+
     public String getmTopicName() {
         return mTopicName;
     }

@@ -3,9 +3,7 @@ package com.tkamat.android.cyou;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -37,6 +35,10 @@ public class TopicPickerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        mTopic = TopicList.get(getActivity()).getTopic((UUID) getArguments().getSerializable(ARG_TOPIC_ID));
+        if (mTopic == null)
+            mTopic = new Topic("", 100000, (UUID) getArguments().getSerializable(ARG_TOPIC_ID));
     }
 
     @Override
@@ -45,6 +47,7 @@ public class TopicPickerFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_topic_picker, container, false);
 
         mTopicText = (EditText) v.findViewById(R.id.text_topic);
+        mTopicText.setText(mTopic.getmTopicName());
         mViewSpinner = (Spinner) v.findViewById(R.id.spinner_views);
         mMatchesPerMonthText = (TextView) v.findViewById(R.id.matches_per_month) ;
         mSaveButton = (FloatingActionButton) v.findViewById(R.id.save_button);
@@ -55,4 +58,9 @@ public class TopicPickerFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_topic_picker, menu);
+    }
 }

@@ -3,5 +3,8 @@
     <string name="hint_topic">Topic or Keyword</string>
     <string name="hint_views">Minimum Views:</string>
     <string name="text_videos_past_month">%1$d matches with %2$d views or more last month</string>
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="delete_button">Delete</string>
 
 </resources>

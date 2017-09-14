@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,10 +15,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.UUID;
 
 public class TopicRecyclerFragment extends Fragment {
     private RecyclerView mTopicRecyclerView;
     private TopicAdapter mTopicAdapter;
+    private FloatingActionButton mFAB;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,10 +32,40 @@ public class TopicRecyclerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_topic_list, container, false);
+        mFAB = (FloatingActionButton) v.findViewById(R.id.add_button);
+        mFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = TopicPickerActivity.newIntent(getActivity(), UUID.randomUUID());
+                startActivity(intent);
+            }
+        });
         mTopicRecyclerView = (RecyclerView) v.findViewById(R.id.topic_recycler_view);
         mTopicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        updateUI();
+        mTopicRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            {
+                if (dy > 0 ||dy<0 && mFAB.isShown())
+                {
+                    mFAB.hide();
+                }
+            }
 
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState)
+            {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE)
+                {
+                    mFAB.show();
+                }
+
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+
+        updateUI();
         return v;
     }
 
