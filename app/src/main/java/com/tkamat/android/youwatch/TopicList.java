@@ -1,4 +1,4 @@
-package com.tkamat.android.cyou;
+package com.tkamat.android.youwatch;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import database.TopicCursorWrapper;
 import database.TopicDatabaseHelper;
-import database.TopicDatabaseSchema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +63,17 @@ public class TopicList {
     public void addTopic(Topic topic) {
         ContentValues values = getContentValues(topic);
         mDatabase.insert(TopicTable.NAME, null, values);
+    }
+
+    public void updateTopic(Topic topic) {
+        String uuidString = topic.getmID().toString();
+        ContentValues values = getContentValues(topic);
+
+        mDatabase.update(TopicTable.NAME, values, TopicTable.Cols.UUID + " = ?", new String[] {uuidString});
+    }
+
+    public void deleteTopic(UUID id) {
+        mDatabase.delete(TopicTable.NAME, TopicTable.Cols.UUID + " = ?", new String[] {id.toString()});
     }
 
     private static ContentValues getContentValues(Topic topic) {

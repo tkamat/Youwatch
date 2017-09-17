@@ -2,7 +2,7 @@ package database;
 
 import android.database.Cursor;
 import android.database.CursorWrapper;
-import com.tkamat.android.cyou.Topic;
+import com.tkamat.android.youwatch.Topic;
 
 import java.util.UUID;
 

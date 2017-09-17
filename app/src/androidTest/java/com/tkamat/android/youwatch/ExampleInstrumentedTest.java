@@ -1,4 +1,4 @@
-package com.tkamat.android.cyou;
+package com.tkamat.android.youwatch;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

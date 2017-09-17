@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
-          package="com.tkamat.android.cyou"
+          package="com.tkamat.android.youwatch"
 >
 
     <application android:allowBackup="true"
@@ -9,10 +9,10 @@
                  android:roundIcon="@mipmap/ic_launcher_round"
                  android:supportsRtl="true"
                  android:theme="@style/AppTheme">
-        <activity android:name="com.tkamat.android.cyou.TopicPickerActivity"
-                  android:parentActivityName=".TopicRecyclerActivity">
+        <activity android:name="com.tkamat.android.youwatch.TopicPickerActivity"
+                  android:parentActivityName="com.tkamat.android.youwatch.TopicRecyclerActivity">
         </activity>
-        <activity android:name="com.tkamat.android.cyou.TopicRecyclerActivity">
+        <activity android:name="com.tkamat.android.youwatch.TopicRecyclerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

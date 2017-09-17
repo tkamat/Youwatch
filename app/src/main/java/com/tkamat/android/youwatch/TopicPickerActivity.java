@@ -1,17 +1,18 @@
-package com.tkamat.android.cyou;
+package com.tkamat.android.youwatch;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
-/**
- * @author Tushaar Kamat
- * @version 9/8/17
- */
+import java.util.UUID;
 
-public class TopicRecyclerActivity extends AppCompatActivity {
+public class TopicPickerActivity extends AppCompatActivity {
+
+    public static final String EXTRA_TOPIC_ID = "extra_topic_ID";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -22,9 +23,14 @@ public class TopicRecyclerActivity extends AppCompatActivity {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
-            fragment = TopicRecyclerFragment.newInstance();
+            fragment = TopicPickerFragment.newInstance((UUID) getIntent().getSerializableExtra(EXTRA_TOPIC_ID));
             fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
         }
     }
 
+    public static Intent newIntent(Context packageContext, UUID topicID) {
+        Intent intent = new Intent(packageContext, TopicPickerActivity.class);
+        intent.putExtra(EXTRA_TOPIC_ID, topicID);
+        return intent;
+    }
 }
