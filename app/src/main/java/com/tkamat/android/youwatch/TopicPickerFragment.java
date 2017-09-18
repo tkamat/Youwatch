@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.*;
@@ -14,10 +15,7 @@ import android.widget.*;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 
 public class TopicPickerFragment extends Fragment {
@@ -26,6 +24,9 @@ public class TopicPickerFragment extends Fragment {
     private Spinner mViewSpinner;
     private TextView mMatchesPerMonthText;
     private FloatingActionButton mSaveButton;
+    private ProgressBar mProgressBar;
+
+    private Timer timer;
 
     private static final String ARG_TOPIC_ID = "arg_topic_id";
 
@@ -55,22 +56,35 @@ public class TopicPickerFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_topic_picker, container, false);
 
+        mProgressBar = (ProgressBar) v.findViewById(R.id.matches_bar);
+        mProgressBar.setVisibility(View.GONE);
+
         mTopicText = (EditText) v.findViewById(R.id.text_topic);
         mTopicText.setText(mTopic.getmTopicName());
         mTopicText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                mProgressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 mTopic.setmTopicName(charSequence.toString());
+                if (timer != null) {
+                    timer.cancel();
+                }
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-
+            public void afterTextChanged(final Editable editable) {
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        disableBar(mProgressBar);
+                        updateMatches();
+                    }
+                }, 600);
             }
         });
 
@@ -104,6 +118,8 @@ public class TopicPickerFragment extends Fragment {
                     final EditText input = new EditText(getActivity());
                     input.setHint("Minimum Views");
                     input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    int maxLength = 9;
+                    input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
                     alertDialog.setView(input);
                     alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Ok", new DialogInterface.OnClickListener() {
                         @Override
@@ -114,12 +130,16 @@ public class TopicPickerFragment extends Fragment {
                         }
                     });
                     alertDialog.show();
+                    alertDialog.getWindow().setLayout(800, 500);
                 } else {
                     try {
                         mTopic.setmMinViews((NumberFormat.getNumberInstance(Locale.US).parse(adapterView.getItemAtPosition(i).toString())).intValue());
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
+                }
+                if (mTopic.getmTopicName() != "") {
+                    updateMatches();
                 }
             }
 
@@ -129,6 +149,7 @@ public class TopicPickerFragment extends Fragment {
             }
         });
 
+        mMatchesPerMonthText = (TextView) v.findViewById(R.id.matches_per_month);
 
         return v;
     }
@@ -161,4 +182,27 @@ public class TopicPickerFragment extends Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private void updateMatches() {
+        setText(mMatchesPerMonthText, getString(R.string.text_videos_past_month, new TopicSearcher(mTopic).getNumberOfMatches(), mTopic.getmMinViews()));
+    }
+
+    private void setText(final TextView text,final String value){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                text.setText(value);
+            }
+        });
+    }
+
+    private void disableBar(final ProgressBar bar) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                bar.setVisibility(View.GONE);
+            }
+        });
+    }
+
 }

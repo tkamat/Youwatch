@@ -1,0 +1,94 @@
+"main@4668" prio=5 tid=0x2 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	  at com.tkamat.android.youwatch.TopicSearcher.<init>(TopicSearcher.java:51)
+	  at com.tkamat.android.youwatch.TopicPickerFragment.updateMatches(TopicPickerFragment.java:172)
+	  at com.tkamat.android.youwatch.TopicPickerFragment.access$100(TopicPickerFragment.java:24)
+	  at com.tkamat.android.youwatch.TopicPickerFragment$1.afterTextChanged(TopicPickerFragment.java:74)
+	  at android.widget.TextView.sendAfterTextChanged(TextView.java:9375)
+	  at android.widget.TextView$ChangeWatcher.afterTextChanged(TextView.java:11917)
+	  at android.text.SpannableStringBuilder.sendAfterTextChanged(SpannableStringBuilder.java:1262)
+	  at android.text.SpannableStringBuilder.replace(SpannableStringBuilder.java:574)
+	  at android.text.SpannableStringBuilder.replace(SpannableStringBuilder.java:504)
+	  at android.text.SpannableStringBuilder.replace(SpannableStringBuilder.java:502)
+	  at android.view.inputmethod.BaseInputConnection.replaceText(BaseInputConnection.java:843)
+	  at android.view.inputmethod.BaseInputConnection.setComposingText(BaseInputConnection.java:616)
+	  at com.android.internal.view.IInputConnectionWrapper.executeMessage(IInputConnectionWrapper.java:396)
+	  at com.android.internal.view.IInputConnectionWrapper$MyHandler.handleMessage(IInputConnectionWrapper.java:85)
+	  at android.os.Handler.dispatchMessage(Handler.java:105)
+	  at android.os.Looper.loop(Looper.java:164)
+	  at android.app.ActivityThread.main(ActivityThread.java:6541)
+	  at java.lang.reflect.Method.invoke(Method.java:-1)
+	  at com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)
+	  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)
+
+"AsyncTask #4@5191" prio=5 tid=0xa47 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	  at android.os.AsyncTask$SerialExecutor$1.run(AsyncTask.java:247)
+	  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+	  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+	  at java.lang.Thread.run(Thread.java:764)
+
+"Jit thread pool worker thread 0@4932" daemon prio=5 tid=0xa34 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"Signal Catcher@5331" daemon prio=5 tid=0xa35 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	 Incompatible thread state: thread not suspended
+
+"ReferenceQueueDaemon@5332" daemon prio=5 tid=0xa37 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	 Incompatible thread state: thread not suspended
+
+"FinalizerDaemon@5333" daemon prio=5 tid=0xa38 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	 Incompatible thread state: thread not suspended
+
+"HeapTaskDaemon@5334" daemon prio=5 tid=0xa3a nid=NA waiting for monitor entry
+  java.lang.Thread.State: BLOCKED
+	 Incompatible thread state: thread not suspended
+
+"FinalizerWatchdogDaemon@5335" daemon prio=5 tid=0xa39 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	 Incompatible thread state: thread not suspended
+
+"Binder:27627_1@5336" prio=5 tid=0xa3b nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"Binder:27627_2@5157" prio=5 tid=0xa3c nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"Profile Saver@4666" daemon prio=5 tid=0xa3d nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"RenderThread@4937" prio=5 tid=0xa3f nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"hwuiTask1@5011" prio=5 tid=0xa40 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"hwuiTask2@5012" prio=5 tid=0xa41 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"Binder:27627_3@5030" prio=5 tid=0xa42 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"queued-work-looper@5145" prio=5 tid=0xa45 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	 Incompatible thread state: thread not suspended
+
+"OkHttp ConnectionPool@5324" daemon prio=5 tid=0xa48 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	 Incompatible thread state: thread not suspended
+
+"Okio Watchdog@5330" daemon prio=5 tid=0xa49 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	 Incompatible thread state: thread not suspended
+
