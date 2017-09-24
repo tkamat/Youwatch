@@ -11,15 +11,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.List;
 import java.util.UUID;
 
 public class TopicRecyclerFragment extends Fragment {
+    private ConstraintLayout mConstraintLayout;
     private RecyclerView mTopicRecyclerView;
     private TopicAdapter mTopicAdapter;
     private FloatingActionButton mFAB;
+    private ProgressBar mProgressBar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,6 +35,8 @@ public class TopicRecyclerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_topic_list, container, false);
+        mConstraintLayout = (ConstraintLayout) v.findViewById(R.id.constraint_layout);
+        mProgressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         mFAB = (FloatingActionButton) v.findViewById(R.id.add_button);
         mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +88,8 @@ public class TopicRecyclerFragment extends Fragment {
     }
 
     private void updateUI() {
+        showViews();
+
         TopicList topicList = TopicList.get(getActivity());
         List<Topic> topics = topicList.getTopics();
 
@@ -94,20 +102,35 @@ public class TopicRecyclerFragment extends Fragment {
         }
     }
 
+    private void hideViews() {
+        mTopicRecyclerView.setVisibility(View.GONE);
+        mFAB.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void showViews() {
+        mTopicRecyclerView.setVisibility(View.VISIBLE);
+        mFAB.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.GONE);
+    }
+
     private class TopicHolder extends RecyclerView.ViewHolder {
         private Topic mTopic;
         private TextView mTopicText;
         private TextView mMinimumViews;
+        private Switch mSwitch;
         private ConstraintLayout mConstraintLayout;
 
         public TopicHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_topic, parent, false));
             mTopicText = (TextView) itemView.findViewById(R.id.topic_text);
             mMinimumViews = (TextView) itemView.findViewById(R.id.minimum_views);
+            mSwitch = (Switch) itemView.findViewById(R.id.enabled_switch);
             mConstraintLayout = (ConstraintLayout) itemView.findViewById(R.id.constraint_layout);
             mConstraintLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    hideViews();
                     Intent intent = TopicPickerActivity.newIntent(getActivity(), mTopic.getmID());
                     startActivity(intent);
                 }

@@ -55,6 +55,7 @@ public class TopicPickerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_topic_picker, container, false);
+        setRetainInstance(true);
 
         mProgressBar = (ProgressBar) v.findViewById(R.id.matches_bar);
         mProgressBar.setVisibility(View.GONE);
@@ -64,6 +65,7 @@ public class TopicPickerFragment extends Fragment {
         mTopicText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                mMatchesPerMonthText.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
             }
 
@@ -81,7 +83,7 @@ public class TopicPickerFragment extends Fragment {
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        disableBar(mProgressBar);
+                        disableBarAndEnableText(mProgressBar, mMatchesPerMonthText);
                         updateMatches();
                     }
                 }, 600);
@@ -196,11 +198,12 @@ public class TopicPickerFragment extends Fragment {
         });
     }
 
-    private void disableBar(final ProgressBar bar) {
+    private void disableBarAndEnableText(final ProgressBar bar, final TextView text) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 bar.setVisibility(View.GONE);
+                text.setVisibility(View.VISIBLE);
             }
         });
     }
