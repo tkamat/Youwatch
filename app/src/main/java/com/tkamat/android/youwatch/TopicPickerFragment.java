@@ -112,44 +112,58 @@ public class TopicPickerFragment extends Fragment {
         } else {
             mViewSpinner.setSelection(adapter.getPosition(minViews));
         }
-        mViewSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
+            boolean userSelect = false;
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                userSelect = true;
+                return false;
+            }
+
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (i == 0) {
-                    final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-                    final EditText input = new EditText(getActivity());
-                    input.setHint("Minimum Views");
-                    input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    int maxLength = 9;
-                    input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-                    alertDialog.setView(input);
-                    alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            String number = NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(input.getText().toString()));
-                            adapter.add(number);
-                            mViewSpinner.setSelection(adapter.getPosition(number));
+                if (userSelect) {
+                    if (i == 0) {
+                        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                        final EditText input = new EditText(getActivity());
+                        input.setHint("Minimum Views");
+                        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        int maxLength = 9;
+                        input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
+                        alertDialog.setView(input);
+                        alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String number = NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(input.getText().toString()));
+                                adapter.add(number);
+                                mViewSpinner.setSelection(adapter.getPosition(number));
+                            }
+                        });
+                        alertDialog.show();
+                        alertDialog.getWindow().setLayout(800, 500);
+                    } else {
+                        try {
+                            mTopic.setmMinViews((NumberFormat.getNumberInstance(Locale.US).parse(adapterView.getItemAtPosition(i).toString())).intValue());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
                         }
-                    });
-                    alertDialog.show();
-                    alertDialog.getWindow().setLayout(800, 500);
-                } else {
-                    try {
-                        mTopic.setmMinViews((NumberFormat.getNumberInstance(Locale.US).parse(adapterView.getItemAtPosition(i).toString())).intValue());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    }
+                    if (mTopic.getmTopicName() != "") {
+                        updateMatches();
                     }
                 }
-                if (mTopic.getmTopicName() != "") {
-                    updateMatches();
-                }
+                userSelect = false;
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
-        });
+        }
+        SpinnerInteractionListener listener = new SpinnerInteractionListener();
+        mViewSpinner.setOnItemSelectedListener(listener);
+        mViewSpinner.setOnTouchListener(listener);
 
         mMatchesPerMonthText = (TextView) v.findViewById(R.id.matches_per_month);
 

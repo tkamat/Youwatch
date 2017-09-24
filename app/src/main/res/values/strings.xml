@@ -6,5 +6,6 @@
     <string name="save_button">Save</string>
     <string name="cancel_button">Cancel</string>
     <string name="delete_button">Delete</string>
-
+    <string name="toast_enabled">Enabled</string>
+    <string name="toast_disabled">Disabled</string>
 </resources>

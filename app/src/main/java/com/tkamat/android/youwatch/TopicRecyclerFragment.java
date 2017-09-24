@@ -9,11 +9,10 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.Switch;
-import android.widget.TextView;
+import android.widget.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -126,6 +125,31 @@ public class TopicRecyclerFragment extends Fragment {
             mTopicText = (TextView) itemView.findViewById(R.id.topic_text);
             mMinimumViews = (TextView) itemView.findViewById(R.id.minimum_views);
             mSwitch = (Switch) itemView.findViewById(R.id.enabled_switch);
+            class SwitchListener implements CompoundButton.OnCheckedChangeListener, View.OnTouchListener {
+                boolean userSelect;
+
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    userSelect = true;
+                    return false;
+                }
+
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (userSelect) {
+                        mTopic.setmEnabled(b);
+                        if (b)
+                            Toast.makeText(getActivity(), getString(R.string.toast_enabled), Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(getActivity(), getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show();
+                    }
+                    userSelect = false;
+                }
+            }
+            SwitchListener listener = new SwitchListener();
+            mSwitch.setOnCheckedChangeListener(listener);
+            mSwitch.setOnTouchListener(listener);
+
             mConstraintLayout = (ConstraintLayout) itemView.findViewById(R.id.constraint_layout);
             mConstraintLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -141,6 +165,7 @@ public class TopicRecyclerFragment extends Fragment {
             mTopic = topic;
             mTopicText.setText(mTopic.getmTopicName());
             mMinimumViews.setText(mTopic.getmMinViews() + " views minimum");
+            mSwitch.setChecked(mTopic.ismEnabled());
         }
     }
 

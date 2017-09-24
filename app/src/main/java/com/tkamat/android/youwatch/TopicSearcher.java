@@ -28,6 +28,7 @@ public class TopicSearcher {
     private String searchQuery;
     private int minViews;
     private YouTube mYoutube;
+    private List<String> mVideoIDs;
     private List<Video> mResults;
 
     public TopicSearcher(Topic topic) {
@@ -38,15 +39,15 @@ public class TopicSearcher {
         try {
             List<SearchResult> searchResults = new MakeSearchListRequest().execute().get();
 
-            List<String> videoIDs = new ArrayList<>();
+            mVideoIDs = new ArrayList<>();
             if (searchResults != null) {
                 for (SearchResult result  : searchResults) {
-                    videoIDs.add(result.getId().getVideoId());
+                    mVideoIDs.add(result.getId().getVideoId());
                 }
             }
 
             Joiner stringJoiner = Joiner.on(',');
-            String videoId = stringJoiner.join(videoIDs);
+            String videoId = stringJoiner.join(mVideoIDs);
 
             mResults = new MakeVideoListRequest().execute(videoId).get();
 
@@ -65,6 +66,10 @@ public class TopicSearcher {
             }
         }
         return matches + "";
+    }
+
+    public List<String> getVideoIDs() {
+        return mVideoIDs;
     }
 
     private class MakeSearchListRequest extends AsyncTask<Void, Void, List<SearchResult>> {

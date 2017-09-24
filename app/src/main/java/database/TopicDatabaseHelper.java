@@ -8,7 +8,7 @@ import static database.TopicDatabaseSchema.*;
 
 public class TopicDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 1;
+    private static final int VERSION = 5;
     private static final String DATABASE_NAME = "topicDatabase.db";
 
     public TopicDatabaseHelper(Context context) {
@@ -29,6 +29,7 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TopicTable.NAME);
+        onCreate(sqLiteDatabase);
     }
 }
