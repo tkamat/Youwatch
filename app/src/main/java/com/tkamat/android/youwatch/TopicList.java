@@ -81,6 +81,7 @@ public class TopicList {
         values.put(TopicTable.Cols.UUID, topic.getmID().toString());
         values.put(TopicTable.Cols.TOPIC, topic.getmTopicName());
         values.put(TopicTable.Cols.VIEWS, topic.getmMinViews());
+        values.put(TopicTable.Cols.ENABLED, topic.ismEnabled() ? 1 : 0);
         return values;
     }
 

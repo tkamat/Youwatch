@@ -22,7 +22,8 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
                 " _id integer primary key autoincrement, " +
                 TopicTable.Cols.UUID + ", " +
                 TopicTable.Cols.TOPIC + ", " +
-                TopicTable.Cols.VIEWS + ")"
+                TopicTable.Cols.VIEWS + ", " +
+                TopicTable.Cols.ENABLED + ")"
         );
     }
 

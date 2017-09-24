@@ -18,8 +18,10 @@ public class TopicCursorWrapper extends CursorWrapper {
         String uuidString = getString(getColumnIndex(TopicTable.Cols.UUID));
         String title = getString(getColumnIndex(TopicTable.Cols.TOPIC));
         int views = getInt(getColumnIndex(TopicTable.Cols.VIEWS));
+        int enabled = getInt(getColumnIndex(TopicTable.Cols.ENABLED));
 
         Topic topic = new Topic(title, views, UUID.fromString(uuidString));
+        topic.setmEnabled(enabled != 0);
 
         return topic;
     }
