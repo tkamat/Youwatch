@@ -70,6 +70,7 @@ public class TopicRecyclerFragment extends Fragment {
         });
 
         updateUI();
+        Util.scheduleJob(getActivity());
         return v;
     }
 

@@ -23,7 +23,15 @@
         <activity android:name=".MainActivity">
 
         </activity>
-        <service android:name=".TopicService"/>
+        <service android:name=".TopicService"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+
+        </service>
+        <receiver android:name=".StartTopicServiceReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
