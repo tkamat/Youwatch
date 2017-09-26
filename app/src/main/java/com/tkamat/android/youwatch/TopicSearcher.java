@@ -34,42 +34,25 @@ public class TopicSearcher {
     public TopicSearcher(Topic topic) {
         searchQuery = topic.getmTopicName();
         minViews = topic.getmMinViews();
-
-
-        try {
-            List<SearchResult> searchResults = new MakeSearchListRequest().execute().get();
-
-            mVideoIDs = new ArrayList<>();
-            if (searchResults != null) {
-                for (SearchResult result  : searchResults) {
-                    mVideoIDs.add(result.getId().getVideoId());
-                }
-            }
-
-            Joiner stringJoiner = Joiner.on(',');
-            String videoId = stringJoiner.join(mVideoIDs);
-
-            mResults = new MakeVideoListRequest().execute(videoId).get();
-
-        } catch (ExecutionException e) {
-
-        } catch (InterruptedException e) {
-
-        }
+        mVideoIDs = new ArrayList<>();
+        mResults = new ArrayList<>();
     }
 
     public String getNumberOfMatches() {
-        int matches = 0;
-        for (Video result : mResults) {
-            if (result.getStatistics().getViewCount().compareTo(BigInteger.valueOf(minViews)) >= 0) {
-                matches++;
-            }
-        }
-        return matches + "";
+        return mResults.size() + "";
     }
 
-    public List<String> getVideoIDs() {
-        return mVideoIDs;
+    private void filterResults() {
+        for (int i = mResults.size() - 1; i >= 0; i--) {
+            if (mResults.get(i).getStatistics().getViewCount().compareTo(BigInteger.valueOf(minViews)) <= 0) {
+                mResults.remove(i);
+                mVideoIDs.remove(i);
+            }
+        }
+    }
+
+    public List<Video> getmResults() {
+        return mResults;
     }
 
     private class MakeSearchListRequest extends AsyncTask<Void, Void, List<SearchResult>> {
@@ -119,5 +102,50 @@ public class TopicSearcher {
         }
     }
 
+    public TopicSearcher searchForIDs() {
+        try {
+            List<SearchResult> searchResults = new MakeSearchListRequest().execute().get();
+            mVideoIDs.clear();
+
+            if (searchResults != null) {
+                for (SearchResult result  : searchResults) {
+                    mVideoIDs.add(result.getId().getVideoId());
+                }
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return this;
+    }
+
+    public TopicSearcher searchForVideos() {
+        Joiner stringJoiner = Joiner.on(',');
+        String videoId = stringJoiner.join(mVideoIDs);
+        mResults.clear();
+
+        try {
+            mResults = new MakeVideoListRequest().execute(videoId).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        if (mResults != null) {
+            filterResults();
+        }
+
+        return this;
+    }
+
+    public List<String> getmVideoIDs() {
+        return mVideoIDs;
+    }
+
+    public void setmVideoIDs(List<String> mVideoIDs) {
+        this.mVideoIDs = mVideoIDs;
+    }
 
 }

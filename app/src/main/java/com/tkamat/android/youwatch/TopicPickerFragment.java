@@ -12,6 +12,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.*;
 import android.widget.*;
+import com.google.api.services.youtube.model.Video;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -200,7 +201,9 @@ public class TopicPickerFragment extends Fragment {
     }
 
     private void updateMatches() {
-        setText(mMatchesPerMonthText, getString(R.string.text_videos_past_month, new TopicSearcher(mTopic).getNumberOfMatches(), mTopic.getmMinViews()));
+        TopicSearcher searcher = mTopic.getmTopicSearcher();
+        searcher.searchForIDs().searchForVideos();
+        setText(mMatchesPerMonthText, getString(R.string.text_videos_past_month, searcher.getNumberOfMatches(), mTopic.getmMinViews()));
     }
 
     private void setText(final TextView text,final String value){

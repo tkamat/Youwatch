@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.google.api.services.youtube.model.Video;
+import com.google.gson.Gson;
 import database.TopicCursorWrapper;
 import database.TopicDatabaseHelper;
 
@@ -82,6 +84,13 @@ public class TopicList {
         values.put(TopicTable.Cols.TOPIC, topic.getmTopicName());
         values.put(TopicTable.Cols.VIEWS, topic.getmMinViews());
         values.put(TopicTable.Cols.ENABLED, topic.ismEnabled() ? 1 : 0);
+
+        List<String> videoIDs = topic.getmTopicSearcher().getmVideoIDs();
+        Gson gson = new Gson();
+        String inputString = gson.toJson(videoIDs);
+        values.put(TopicTable.Cols.TOPIC_SEARCHER, inputString);
+        System.out.println("inputString=" + inputString);
+
         return values;
     }
 

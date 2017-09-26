@@ -9,6 +9,7 @@ public class TopicDatabaseSchema {
             public static final String TOPIC = "topic";
             public static final String VIEWS = "views";
             public static final String ENABLED = "enabled";
+            public static final String TOPIC_SEARCHER = "topic_searcher";
         }
     }
 
