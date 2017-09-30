@@ -1,11 +1,16 @@
 package com.tkamat.android.youwatch;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +21,8 @@ import android.widget.*;
 
 import java.util.List;
 import java.util.UUID;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class TopicRecyclerFragment extends Fragment {
     private ConstraintLayout mConstraintLayout;
@@ -70,7 +77,6 @@ public class TopicRecyclerFragment extends Fragment {
         });
 
         updateUI();
-        Util.scheduleJob(getActivity());
         return v;
     }
 
@@ -113,6 +119,7 @@ public class TopicRecyclerFragment extends Fragment {
         mFAB.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.GONE);
     }
+
 
     private class TopicHolder extends RecyclerView.ViewHolder {
         private Topic mTopic;

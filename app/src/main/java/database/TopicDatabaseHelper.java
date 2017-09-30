@@ -33,4 +33,10 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TopicTable.NAME);
         onCreate(sqLiteDatabase);
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        this.close();
+        super.finalize();
+    }
 }
