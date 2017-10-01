@@ -2,6 +2,7 @@ package com.tkamat.android.youwatch;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -18,13 +19,14 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
 
+import static android.content.Context.CONNECTIVITY_SERVICE;
+
 
 public class TopicPickerFragment extends Fragment {
     private Topic mTopic;
     private EditText mTopicText;
     private Spinner mViewSpinner;
     private TextView mMatchesPerMonthText;
-    private FloatingActionButton mSaveButton;
     private ProgressBar mProgressBar;
 
     private Timer timer;
@@ -139,6 +141,12 @@ public class TopicPickerFragment extends Fragment {
                                 String number = NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(input.getText().toString()));
                                 adapter.add(number);
                                 mViewSpinner.setSelection(adapter.getPosition(number));
+                                try {
+                                    mTopic.setmMinViews((NumberFormat.getNumberInstance(Locale.US).parse(number)).intValue());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                updateMatches();
                             }
                         });
                         alertDialog.show();
@@ -167,6 +175,8 @@ public class TopicPickerFragment extends Fragment {
         mViewSpinner.setOnTouchListener(listener);
 
         mMatchesPerMonthText = (TextView) v.findViewById(R.id.matches_per_month);
+        if (!mTopicText.getText().toString().equals(""))
+            updateMatches();
 
         return v;
     }
@@ -181,6 +191,10 @@ public class TopicPickerFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_button:
+                if (mTopicText.getText().toString().equals("")) {
+                    Toast.makeText(getActivity(), R.string.toast_blank, Toast.LENGTH_SHORT).show();
+                    return true;
+                }
                 if (TopicList.get(getActivity()).getTopic(mTopic.getmID()) == null) {
                     TopicList.get(getActivity()).addTopic(mTopic);
                 } else {
@@ -201,9 +215,20 @@ public class TopicPickerFragment extends Fragment {
     }
 
     private void updateMatches() {
-        TopicSearcher searcher = mTopic.getmTopicSearcher();
-        searcher.searchForIDs().searchForVideos();
-        setText(mMatchesPerMonthText, getString(R.string.text_videos_past_month, searcher.getNumberOfMatches(), mTopic.getmMinViews()));
+        if (isNetworkAvaibaleAndConnected()) {
+
+            TopicSearcher searcher = mTopic.getmTopicSearcher();
+            searcher.searchForIDs().searchForVideos();
+            String matches = searcher.getNumberOfMatches();
+            String text = "";
+            if (matches.equals("50+")) {
+                text = getString(R.string.text_videos_past_month, matches) + " " + getString(R.string.consider_changing);
+            } else {
+                text = getString(R.string.text_videos_past_month, matches);
+            }
+
+            setText(mMatchesPerMonthText, text);
+        }
     }
 
     private void setText(final TextView text,final String value){
@@ -223,6 +248,14 @@ public class TopicPickerFragment extends Fragment {
                 text.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    private boolean isNetworkAvaibaleAndConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(CONNECTIVITY_SERVICE);
+        boolean isNetworkAvailable = cm.getActiveNetworkInfo() != null;
+        boolean isNetworkConnected = isNetworkAvailable && cm.getActiveNetworkInfo().isConnected();
+
+        return isNetworkConnected;
     }
 
 }

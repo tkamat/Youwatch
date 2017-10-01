@@ -39,6 +39,9 @@ public class TopicSearcher {
     }
 
     public String getNumberOfMatches() {
+        if (mResults.size() == 50) {
+            return "50+";
+        }
         return mResults.size() + "";
     }
 

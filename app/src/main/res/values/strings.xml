@@ -2,10 +2,12 @@
     <string name="app_name">Youwatch</string>
     <string name="hint_topic">Topic or Keyword</string>
     <string name="hint_views">Minimum Views:</string>
-    <string name="text_videos_past_month">%1$s matches with %2$d views or more last month</string>
+    <string name="text_videos_past_month">%1$s matches last month. </string>
     <string name="save_button">Save</string>
     <string name="cancel_button">Cancel</string>
     <string name="delete_button">Delete</string>
     <string name="toast_enabled">Enabled</string>
     <string name="toast_disabled">Disabled</string>
+    <string name="consider_changing">Please consider using a more specific topic or increasing the minimum views.</string>
+    <string name="toast_blank">Please enter a topic</string>
 </resources>

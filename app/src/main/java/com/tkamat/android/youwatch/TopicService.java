@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.Toast;
+import com.google.api.services.youtube.model.Video;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,6 @@ public class TopicService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        createNotification("FtieBc3KptU");
         if (!isNetworkAvaibaleAndConnected())
             return false;
         List<Topic> topics = TopicList.get(this).getTopics();
@@ -37,16 +37,18 @@ public class TopicService extends JobService {
             t.setmTopicSearcher(new TopicSearcher(t));
             t.getmTopicSearcher().searchForIDs().searchForVideos();
             List<String> newVideoIDs = t.getmTopicSearcher().getmVideoIDs();
+            List<Video> newVideoResults = t.getmTopicSearcher().getmResults();
             List<String> uniqueVideoIDs = new ArrayList<>();
             for (int i = newVideoIDs.size() - 1; i >= 0; i--) {
                 if (!oldVideoIDs.contains(newVideoIDs.get(i))) {
                     uniqueVideoIDs.add(newVideoIDs.get(i));
-                    createNotification(newVideoIDs.get(i));
+                    String title = "New From " + newVideoResults.get(i).getSnippet().getChannelTitle();
+                    String body = newVideoResults.get(i).getSnippet().getTitle();
+                    createNotification(newVideoIDs.get(i), title, body);
                 }
             }
             Log.i(TAG, "Topic refreshed");
             Log.i(TAG, uniqueVideoIDs.toString());
-            Toast.makeText(getApplicationContext(), "TopicService started", Toast.LENGTH_LONG).show();
         }
         return true;
     }
@@ -68,7 +70,8 @@ public class TopicService extends JobService {
         return isNetworkConnected;
     }
 
-    private void createNotification(String videoID) {Intent notificationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoID));
+    private void createNotification(String videoID, String title, String body) {
+        Intent notificationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoID));
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -77,8 +80,8 @@ public class TopicService extends JobService {
             notificationManager.createNotificationChannel(channel);
             Notification notification = new Notification.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("test")
-                    .setContentText("test test test")
+                    .setContentTitle(title)
+                    .setContentText(body)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
                     .build();
