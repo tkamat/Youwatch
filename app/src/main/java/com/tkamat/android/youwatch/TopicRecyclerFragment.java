@@ -18,6 +18,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +33,7 @@ public class TopicRecyclerFragment extends Fragment {
     private TopicAdapter mTopicAdapter;
     private FloatingActionButton mFAB;
     private ProgressBar mProgressBar;
+//    private AdView mAdView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,6 +55,22 @@ public class TopicRecyclerFragment extends Fragment {
                 startActivity(intent);
             }
         });
+//        mAdView = (AdView) v.findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder().addTestDevice("BA648A93396B1115DEF0054041E7E8EB").build();
+//        mAdView.loadAd(adRequest);
+//        mAdView.setAdListener(new AdListener() {
+//            @Override
+//            public void onAdFailedToLoad(int i) {
+//                mAdView.setVisibility(View.GONE);
+//                super.onAdFailedToLoad(i);
+//            }
+//
+//            @Override
+//            public void onAdLoaded() {
+//                mAdView.setVisibility(View.VISIBLE);
+//                super.onAdLoaded();
+//            }
+//        });
         mTopicRecyclerView = (RecyclerView) v.findViewById(R.id.topic_recycler_view);
         mTopicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mTopicRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
@@ -60,6 +80,7 @@ public class TopicRecyclerFragment extends Fragment {
             {
                 if (dy > 0 ||dy<0 && mFAB.isShown())
                 {
+                    //test
                     mFAB.hide();
                 }
             }
@@ -77,6 +98,7 @@ public class TopicRecyclerFragment extends Fragment {
         });
 
         updateUI();
+        Util.scheduleJob(getActivity());
         return v;
     }
 

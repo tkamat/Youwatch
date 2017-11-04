@@ -8,7 +8,7 @@ import static database.TopicDatabaseSchema.*;
 
 public class TopicDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 9;
+    private static final int VERSION = 10;
     private static final String DATABASE_NAME = "topicDatabase.db";
 
     public TopicDatabaseHelper(Context context) {
@@ -24,7 +24,8 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
                 TopicTable.Cols.TOPIC + ", " +
                 TopicTable.Cols.VIEWS + ", " +
                 TopicTable.Cols.ENABLED + ", " +
-                TopicTable.Cols.TOPIC_SEARCHER + ")"
+                TopicTable.Cols.TOPIC_SEARCHER +  ", " +
+                TopicTable.Cols.NOTIFIED_VIDEOS + ")"
         );
     }
 
