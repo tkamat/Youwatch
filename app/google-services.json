@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "164738353972",
+    "firebase_url": "https://youwatch-9138b.firebaseio.com",
+    "project_id": "youwatch-9138b",
+    "storage_bucket": "youwatch-9138b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164738353972:android:df200f2b24b73991",
+        "android_client_info": {
+          "package_name": "com.tkamat.android.youwatch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164738353972-h9kqmsgsrgpk4m54ut9pjulrr87dt8pj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tkamat.android.youwatch",
+            "certificate_hash": "0b6c59ba0c82ad62e4825f65f298f19a29804fd5"
+          }
+        },
+        {
+          "client_id": "164738353972-0npbaj5rhh31dro2srh97u63ngjama0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSa2CbQyENESIzfE-uPBJ-PF0kjDzEjpk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "164738353972-0npbaj5rhh31dro2srh97u63ngjama0q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

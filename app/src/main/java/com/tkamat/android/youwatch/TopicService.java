@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -28,9 +29,16 @@ public class TopicService extends JobService {
     public static final String CHANNEL_ID = "topic_channel";
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
+
+    @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        if (!isNetworkAvaibaleAndConnected())
+        if (!isNetworkAvaibaleAndConnected()) {
+            Util.scheduleJob(this);
             return false;
+        }
         List<Topic> topics = TopicList.get(this).getTopics();
         for (Topic t : topics) {
             List<String> oldVideoIDs = t.getmTopicSearcher().getmVideoIDs();
@@ -39,23 +47,30 @@ public class TopicService extends JobService {
             List<String> newVideoIDs = t.getmTopicSearcher().getmVideoIDs();
             List<Video> newVideoResults = t.getmTopicSearcher().getmResults();
             List<String> uniqueVideoIDs = new ArrayList<>();
-            for (int i = newVideoIDs.size() - 1; i >= 0; i--) {
-                if (!oldVideoIDs.contains(newVideoIDs.get(i))) {
+            for (int i = 0; i < newVideoIDs.size(); i++) {
+                if (!oldVideoIDs.contains(newVideoIDs.get(i)) && !t.getmNotifiedVideos().contains(newVideoIDs.get(i))) {
                     uniqueVideoIDs.add(newVideoIDs.get(i));
                     String title = "New From " + newVideoResults.get(i).getSnippet().getChannelTitle();
                     String body = newVideoResults.get(i).getSnippet().getTitle();
+                    t.getmNotifiedVideos().add(newVideoIDs.get(i));
+                    TopicList.get(this).updateTopic(t);
                     createNotification(newVideoIDs.get(i), title, body);
                 }
             }
             Log.i(TAG, "Topic refreshed");
             Log.i(TAG, uniqueVideoIDs.toString());
         }
+        Util.scheduleJob(this);
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
         return true;
+    }
+
+    @Override
+    public void onDestroy() {
     }
 
     public static Intent newIntent (Context context) {

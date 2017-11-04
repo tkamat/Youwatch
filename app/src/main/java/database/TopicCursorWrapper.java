@@ -27,14 +27,18 @@ public class TopicCursorWrapper extends CursorWrapper {
         String title = getString(getColumnIndex(TopicTable.Cols.TOPIC));
         int views = getInt(getColumnIndex(TopicTable.Cols.VIEWS));
         int enabled = getInt(getColumnIndex(TopicTable.Cols.ENABLED));
-        String pastResults = getString(getColumnIndex(TopicTable.Cols.TOPIC_SEARCHER));
+        String videoIDsString = getString(getColumnIndex(TopicTable.Cols.TOPIC_SEARCHER));
+        String notifiedVideosString = getString(getColumnIndex(TopicTable.Cols.NOTIFIED_VIDEOS));
+
+        Type type = new TypeToken<List<String>>(){}.getType();
+        Gson gson = new Gson();
+        List<String> videoIDs = gson.fromJson(videoIDsString, type);
+        List<String> notifiedVideos = gson.fromJson(notifiedVideosString, type);
 
         Topic topic = new Topic(title, views, UUID.fromString(uuidString));
         topic.setmEnabled(enabled != 0);
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<String>>(){}.getType();
-        List<String> finalOutput = gson.fromJson(pastResults, type);
-        topic.getmTopicSearcher().setmVideoIDs(finalOutput);
+        topic.getmTopicSearcher().setmVideoIDs(videoIDs);
+        topic.setmNotifiedVideos(notifiedVideos);
 
         return topic;
     }

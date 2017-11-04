@@ -85,11 +85,15 @@ public class TopicList {
         values.put(TopicTable.Cols.VIEWS, topic.getmMinViews());
         values.put(TopicTable.Cols.ENABLED, topic.ismEnabled() ? 1 : 0);
 
-        List<String> videoIDs = topic.getmTopicSearcher().getmVideoIDs();
         Gson gson = new Gson();
-        String inputString = gson.toJson(videoIDs);
-        values.put(TopicTable.Cols.TOPIC_SEARCHER, inputString);
-        System.out.println("inputString=" + inputString);
+
+        List<String> videoIDs = topic.getmTopicSearcher().getmVideoIDs();
+        String inputString1 = gson.toJson(videoIDs);
+        values.put(TopicTable.Cols.TOPIC_SEARCHER, inputString1);
+
+        List<String> notifiedVideos = topic.getmNotifiedVideos();
+        String inputString2 = gson.toJson(notifiedVideos);
+        values.put(TopicTable.Cols.NOTIFIED_VIDEOS, inputString2);
 
         return values;
     }

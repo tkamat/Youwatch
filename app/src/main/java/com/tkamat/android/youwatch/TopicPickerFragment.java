@@ -6,13 +6,17 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.*;
 import android.widget.*;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.api.services.youtube.model.Video;
 
 import java.text.NumberFormat;
@@ -28,6 +32,7 @@ public class TopicPickerFragment extends Fragment {
     private Spinner mViewSpinner;
     private TextView mMatchesPerMonthText;
     private ProgressBar mProgressBar;
+//    private InterstitialAd mInterstitialAd;
 
     private Timer timer;
 
@@ -177,7 +182,9 @@ public class TopicPickerFragment extends Fragment {
         mMatchesPerMonthText = (TextView) v.findViewById(R.id.matches_per_month);
         if (!mTopicText.getText().toString().equals(""))
             updateMatches();
-
+//        mInterstitialAd = new InterstitialAd(getActivity());
+//        mInterstitialAd.setAdUnitId(getString(R.string.interstitial_ad_unit_id));
+//        mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("BA648A93396B1115DEF0054041E7E8EB").build());
         return v;
     }
 
@@ -200,6 +207,8 @@ public class TopicPickerFragment extends Fragment {
                 } else {
                     TopicList.get(getActivity()).updateTopic(mTopic);
                 }
+//                if (mInterstitialAd.isLoaded())
+//                    mInterstitialAd.show();
                 getActivity().onBackPressed();
                 return true;
             case R.id.delete_button:
@@ -221,13 +230,15 @@ public class TopicPickerFragment extends Fragment {
             searcher.searchForIDs().searchForVideos();
             String matches = searcher.getNumberOfMatches();
             String text = "";
-            if (matches.equals("50+")) {
-                text = getString(R.string.text_videos_past_month, matches) + " " + getString(R.string.consider_changing);
-            } else {
-                text = getString(R.string.text_videos_past_month, matches);
+            if (getActivity() != null) {
+                if (matches.equals("50+")) {
+                    text = getString(R.string.text_videos_past_month, matches) + " " + getString(R.string.consider_changing);
+                } else {
+                    text = getString(R.string.text_videos_past_month, matches);
+                }
+                setText(mMatchesPerMonthText, text);
             }
 
-            setText(mMatchesPerMonthText, text);
         }
     }
 

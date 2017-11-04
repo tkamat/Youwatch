@@ -10,4 +10,7 @@
     <string name="toast_disabled">Disabled</string>
     <string name="consider_changing">Please consider using a more specific topic or increasing the minimum views.</string>
     <string name="toast_blank">Please enter a topic</string>
+    <string name="banner_ad_unit_id">ca-app-pub-8397924711773163/4745857310</string>
+    <string name="interstitial_ad_unit_id">ca-app-pub-8397924711773163/1676840840</string>
+
 </resources>

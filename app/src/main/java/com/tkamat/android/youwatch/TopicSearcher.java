@@ -82,6 +82,7 @@ public class TopicSearcher {
                 search.setMaxResults(NUMBER_OF_VIDEOS);
                 search.setPublishedAfter(new DateTime(cal.getTime()));
                 search.setOrder("viewCount");
+                search.setRelevanceLanguage("en");
                 return search.execute().getItems();
             } catch (IOException e) {
 

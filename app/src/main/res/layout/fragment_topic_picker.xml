@@ -33,7 +33,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/matches_per_month"
-            android:textColor="@color/colorAccent"
             android:layout_marginLeft="16dp"
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginTop="16dp" app:layout_constraintTop_toBottomOf="@+id/view_hint"
