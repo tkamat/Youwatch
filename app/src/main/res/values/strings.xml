@@ -12,5 +12,14 @@
     <string name="toast_blank">Please enter a topic</string>
     <string name="banner_ad_unit_id">ca-app-pub-8397924711773163/4745857310</string>
     <string name="interstitial_ad_unit_id">ca-app-pub-8397924711773163/1676840840</string>
+    <string name="first_time_title">Welcome to Youwatch!</string>
+    <string name="first_time_instructions">
+        Youwatch aims to redefine your YouTube experience by notifying you when videos about certain
+        topics become popular. You can get started in 3 easy steps.\n\n
+        1. Click the "+" button in the bottom right corner of the screen.\n
+        2. Type in a topic you are interested in the box, and select a minimum number of views.\n
+        3. Look at the matches found last month, and adjust the topic name and the minimum views until you find a number you are comfortable with.
+    </string>
+    <string name="limit_reached_toast">Topic limit reached</string>
 
 </resources>

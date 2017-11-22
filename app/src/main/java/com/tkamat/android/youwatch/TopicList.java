@@ -49,6 +49,16 @@ public class TopicList {
         return topics;
     }
 
+    public List<Topic> getEnabledTopics() {
+        List<Topic> topics = getTopics();
+        List<Topic> enabledTopics = new ArrayList<>();
+        for (Topic t : topics) {
+            if (t.ismEnabled())
+                enabledTopics.add(t);
+        }
+        return enabledTopics;
+    }
+
     public Topic getTopic(UUID id) {
         TopicCursorWrapper cursor = queryCrimes(TopicTable.Cols.UUID + " = ?", new String[] {id.toString()});
 

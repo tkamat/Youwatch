@@ -1,9 +1,12 @@
 package com.tkamat.android.youwatch;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -25,6 +29,7 @@ import com.google.android.gms.ads.AdView;
 import java.util.List;
 import java.util.UUID;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class TopicRecyclerFragment extends Fragment {
@@ -51,8 +56,12 @@ public class TopicRecyclerFragment extends Fragment {
         mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = TopicPickerActivity.newIntent(getActivity(), UUID.randomUUID());
-                startActivity(intent);
+                if (TopicList.get(getActivity()).getEnabledTopics().size() <= 10) {
+                    Intent intent = TopicPickerActivity.newIntent(getActivity(), UUID.randomUUID());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getActivity(), getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 //        mAdView = (AdView) v.findViewById(R.id.adView);
@@ -73,23 +82,18 @@ public class TopicRecyclerFragment extends Fragment {
 //        });
         mTopicRecyclerView = (RecyclerView) v.findViewById(R.id.topic_recycler_view);
         mTopicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mTopicRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
-        {
+        mTopicRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
-                if (dy > 0 ||dy<0 && mFAB.isShown())
-                {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0 || dy < 0 && mFAB.isShown()) {
                     //test
                     mFAB.hide();
                 }
             }
 
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState)
-            {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE)
-                {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     mFAB.show();
                 }
 
@@ -98,6 +102,17 @@ public class TopicRecyclerFragment extends Fragment {
         });
 
         updateUI();
+        if (isFirstTime()) {
+            final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+            alertDialog.setTitle(getString(R.string.first_time_title));
+            final TextView textView = new TextView(getActivity());
+            textView.setText(R.string.first_time_instructions);
+            textView.setTextColor(Color.BLACK);
+            textView.setTextSize(12);
+            alertDialog.setView(textView, 50, 50, 50, 50);
+            alertDialog.show();
+        }
+
         Util.scheduleJob(getActivity());
         return v;
     }
@@ -142,6 +157,17 @@ public class TopicRecyclerFragment extends Fragment {
         mProgressBar.setVisibility(View.GONE);
     }
 
+    private boolean isFirstTime() {
+        SharedPreferences preferences = getActivity().getPreferences(MODE_PRIVATE);
+        boolean ranBefore = preferences.getBoolean("RanBefore", false);
+        if (!ranBefore) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("RanBefore", true);
+            editor.commit();
+        }
+        return !ranBefore;
+    }
+
 
     private class TopicHolder extends RecyclerView.ViewHolder {
         private Topic mTopic;
@@ -156,7 +182,7 @@ public class TopicRecyclerFragment extends Fragment {
             mMinimumViews = (TextView) itemView.findViewById(R.id.minimum_views);
             mSwitch = (Switch) itemView.findViewById(R.id.enabled_switch);
             class SwitchListener implements CompoundButton.OnCheckedChangeListener, View.OnTouchListener {
-                boolean userSelect;
+                boolean userSelect = false;
 
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -167,12 +193,22 @@ public class TopicRecyclerFragment extends Fragment {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if (userSelect) {
-                        mTopic.setmEnabled(b);
-                        if (b)
-                            Toast.makeText(getActivity(), getString(R.string.toast_enabled), Toast.LENGTH_SHORT).show();
-                        else
+                        if (TopicList.get(getActivity()).getEnabledTopics().size() <= 10) {
+                            mTopic.setmEnabled(b);
+                            if (b)
+                                Toast.makeText(getActivity(), getString(R.string.toast_enabled), Toast.LENGTH_SHORT).show();
+                            else
+                                Toast.makeText(getActivity(), getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show();
+                        } else if (b) {
+                            Toast.makeText(getActivity(), getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show();
+                            userSelect = false;
+                            mSwitch.setChecked(false);
+                        } else if (!b) {
+                            mTopic.setmEnabled(false);
                             Toast.makeText(getActivity(), getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show();
+                        }
                     }
+                    TopicList.get(getActivity()).updateTopic(mTopic);
                     userSelect = false;
                 }
             }

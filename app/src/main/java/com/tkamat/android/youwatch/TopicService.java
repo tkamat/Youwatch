@@ -41,24 +41,26 @@ public class TopicService extends JobService {
         }
         List<Topic> topics = TopicList.get(this).getTopics();
         for (Topic t : topics) {
-            List<String> oldVideoIDs = t.getmTopicSearcher().getmVideoIDs();
-            t.setmTopicSearcher(new TopicSearcher(t));
-            t.getmTopicSearcher().searchForIDs().searchForVideos();
-            List<String> newVideoIDs = t.getmTopicSearcher().getmVideoIDs();
-            List<Video> newVideoResults = t.getmTopicSearcher().getmResults();
-            List<String> uniqueVideoIDs = new ArrayList<>();
-            for (int i = 0; i < newVideoIDs.size(); i++) {
-                if (!oldVideoIDs.contains(newVideoIDs.get(i)) && !t.getmNotifiedVideos().contains(newVideoIDs.get(i))) {
-                    uniqueVideoIDs.add(newVideoIDs.get(i));
-                    String title = "New From " + newVideoResults.get(i).getSnippet().getChannelTitle();
-                    String body = newVideoResults.get(i).getSnippet().getTitle();
-                    t.getmNotifiedVideos().add(newVideoIDs.get(i));
-                    TopicList.get(this).updateTopic(t);
-                    createNotification(newVideoIDs.get(i), title, body);
+            if (t.ismEnabled()) {
+                List<String> oldVideoIDs = t.getmTopicSearcher().getmVideoIDs();
+                t.setmTopicSearcher(new TopicSearcher(t));
+                t.getmTopicSearcher().searchForIDs().searchForVideos();
+                List<String> newVideoIDs = t.getmTopicSearcher().getmVideoIDs();
+                List<Video> newVideoResults = t.getmTopicSearcher().getmResults();
+                List<String> uniqueVideoIDs = new ArrayList<>();
+                for (int i = 0; i < newVideoIDs.size(); i++) {
+                    if (!oldVideoIDs.contains(newVideoIDs.get(i)) && !t.getmNotifiedVideos().contains(newVideoIDs.get(i))) {
+                        uniqueVideoIDs.add(newVideoIDs.get(i));
+                        String title = "New From " + newVideoResults.get(i).getSnippet().getChannelTitle();
+                        String body = newVideoResults.get(i).getSnippet().getTitle();
+                        t.getmNotifiedVideos().add(newVideoIDs.get(i));
+                        TopicList.get(this).updateTopic(t);
+                        createNotification(newVideoIDs.get(i), title, body);
+                    }
                 }
+                Log.i(TAG, "Topic refreshed");
+                Log.i(TAG, uniqueVideoIDs.toString());
             }
-            Log.i(TAG, "Topic refreshed");
-            Log.i(TAG, uniqueVideoIDs.toString());
         }
         Util.scheduleJob(this);
         return true;
