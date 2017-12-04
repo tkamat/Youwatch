@@ -11,6 +11,7 @@ public class TopicDatabaseSchema {
             public static final String ENABLED = "enabled";
             public static final String TOPIC_SEARCHER = "topic_searcher";
             public static final String NOTIFIED_VIDEOS = "notified_videos";
+            public static final String TOP_VIDEO_NOTIFICATION_SHOWN = "top_video";
         }
     }
 

@@ -201,7 +201,10 @@ public class TopicPickerFragment extends Fragment {
                 }
                 if (TopicList.get(getActivity()).getTopic(mTopic.getmID()) == null) {
                     TopicList.get(getActivity()).addTopic(mTopic);
-                    Util.createNotification(mTopVideoID, mTopVideoTitle, mTopVideoBody, getActivity());
+                    if (mTopVideoID != null && !mTopic.ismTopVideoNotificationShown()) {
+                        Util.createNotification(mTopVideoID, mTopVideoTitle, mTopVideoBody, getActivity());
+                        mTopic.setmTopVideoNotificationShown(true);
+                    }
                 } else {
                     TopicList.get(getActivity()).updateTopic(mTopic);
                 }
@@ -236,9 +239,11 @@ public class TopicPickerFragment extends Fragment {
                 }
                 setText(mMatchesPerMonthText, text);
             }
-            mTopVideoID = searcher.getmVideoIDs().get(0);
-            mTopVideoTitle = "New from " + searcher.getmResults().get(0).getSnippet().getChannelTitle();
-            mTopVideoTitle = searcher.getmResults().get(0).getSnippet().getTitle();
+            if (!mTopic.ismTopVideoNotificationShown() && searcher.getmVideoIDs().size() > 0) {
+                mTopVideoID = searcher.getmVideoIDs().get(0);
+                mTopVideoTitle = "New from " + searcher.getmResults().get(0).getSnippet().getChannelTitle();
+                mTopVideoTitle = searcher.getmResults().get(0).getSnippet().getTitle();
+            }
         }
     }
 

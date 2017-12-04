@@ -27,6 +27,7 @@ public class TopicCursorWrapper extends CursorWrapper {
         String title = getString(getColumnIndex(TopicTable.Cols.TOPIC));
         int views = getInt(getColumnIndex(TopicTable.Cols.VIEWS));
         int enabled = getInt(getColumnIndex(TopicTable.Cols.ENABLED));
+        int topVideo = getInt(getColumnIndex(TopicTable.Cols.TOP_VIDEO_NOTIFICATION_SHOWN));
         String videoIDsString = getString(getColumnIndex(TopicTable.Cols.TOPIC_SEARCHER));
         String notifiedVideosString = getString(getColumnIndex(TopicTable.Cols.NOTIFIED_VIDEOS));
 
@@ -39,6 +40,7 @@ public class TopicCursorWrapper extends CursorWrapper {
         topic.setmEnabled(enabled != 0);
         topic.getmTopicSearcher().setmVideoIDs(videoIDs);
         topic.setmNotifiedVideos(notifiedVideos);
+        topic.setmTopVideoNotificationShown(enabled != 0);
 
         return topic;
     }

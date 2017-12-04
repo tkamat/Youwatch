@@ -12,6 +12,7 @@ public class Topic {
     private String mTopicName;
     private int mMinViews;
     private boolean mEnabled;
+    private boolean mTopVideoNotificationShown;
     private TopicSearcher mTopicSearcher;
     private List<String> mNotifiedVideos;
 
@@ -22,6 +23,7 @@ public class Topic {
         this.mEnabled = true;
         this.mTopicSearcher = new TopicSearcher(this);
         this.mNotifiedVideos = new ArrayList<>();
+        this.mTopVideoNotificationShown = false;
     }
 
     public Topic(String mTopicName, int mMinViews, UUID mID) {
@@ -31,6 +33,7 @@ public class Topic {
         this.mEnabled = true;
         this.mTopicSearcher = new TopicSearcher(this);
         this.mNotifiedVideos = new ArrayList<>();
+        this.mTopVideoNotificationShown = false;
     }
 
     public String getmTopicName() {
@@ -81,5 +84,13 @@ public class Topic {
 
     public void setmNotifiedVideos(List<String> mNotifiedVideos) {
         this.mNotifiedVideos = mNotifiedVideos;
+    }
+
+    public boolean ismTopVideoNotificationShown() {
+        return mTopVideoNotificationShown;
+    }
+
+    public void setmTopVideoNotificationShown(boolean mTopVideoNotificationShown) {
+        this.mTopVideoNotificationShown = mTopVideoNotificationShown;
     }
 }

@@ -94,6 +94,7 @@ public class TopicList {
         values.put(TopicTable.Cols.TOPIC, topic.getmTopicName());
         values.put(TopicTable.Cols.VIEWS, topic.getmMinViews());
         values.put(TopicTable.Cols.ENABLED, topic.ismEnabled() ? 1 : 0);
+        values.put(TopicTable.Cols.TOP_VIDEO_NOTIFICATION_SHOWN, topic.ismTopVideoNotificationShown() ? 1 : 0);
 
         Gson gson = new Gson();
 

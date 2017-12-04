@@ -25,7 +25,8 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
                 TopicTable.Cols.VIEWS + ", " +
                 TopicTable.Cols.ENABLED + ", " +
                 TopicTable.Cols.TOPIC_SEARCHER +  ", " +
-                TopicTable.Cols.NOTIFIED_VIDEOS + ")"
+                TopicTable.Cols.NOTIFIED_VIDEOS + ", " +
+                TopicTable.Cols.TOP_VIDEO_NOTIFICATION_SHOWN + ")"
         );
     }
 
