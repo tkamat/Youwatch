@@ -55,7 +55,7 @@ public class TopicService extends JobService {
                         String body = newVideoResults.get(i).getSnippet().getTitle();
                         t.getmNotifiedVideos().add(newVideoIDs.get(i));
                         TopicList.get(this).updateTopic(t);
-                        createNotification(newVideoIDs.get(i), title, body);
+                        Util.createNotification(newVideoIDs.get(i), title, body, this);
                     }
                 }
                 Log.i(TAG, "Topic refreshed");
@@ -87,31 +87,4 @@ public class TopicService extends JobService {
         return isNetworkConnected;
     }
 
-    private void createNotification(String videoID, String title, String body) {
-        Intent notificationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoID));
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Topic Watcher Service", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("test");
-            notificationManager.createNotificationChannel(channel);
-            Notification notification = new Notification.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setContentIntent(contentIntent)
-                    .setAutoCancel(true)
-                    .build();
-            notificationManager.notify(0, notification);
-        } else {
-            Notification notification = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("test")
-                    .setContentText("test test test")
-                    .setContentIntent(contentIntent)
-                    .setAutoCancel(true)
-                    .build();
-            notificationManager.notify(0, notification);
-        }
-    }
 }

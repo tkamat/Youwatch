@@ -1,7 +1,7 @@
 "main@4668" prio=5 tid=0x2 nid=NA runnable
   java.lang.Thread.State: RUNNABLE
 	  at com.tkamat.android.youwatch.TopicSearcher.<init>(TopicSearcher.java:51)
-	  at com.tkamat.android.youwatch.TopicPickerFragment.updateMatches(TopicPickerFragment.java:172)
+	  at updateMatchesAndTopVideo(TopicPickerFragment.java:172)
 	  at com.tkamat.android.youwatch.TopicPickerFragment.access$100(TopicPickerFragment.java:24)
 	  at com.tkamat.android.youwatch.TopicPickerFragment$1.afterTextChanged(TopicPickerFragment.java:74)
 	  at android.widget.TextView.sendAfterTextChanged(TextView.java:9375)

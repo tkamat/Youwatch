@@ -4,20 +4,14 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.*;
 import android.widget.*;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.api.services.youtube.model.Video;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -32,6 +26,9 @@ public class TopicPickerFragment extends Fragment {
     private Spinner mViewSpinner;
     private TextView mMatchesPerMonthText;
     private ProgressBar mProgressBar;
+    private String mTopVideoID;
+    private String mTopVideoTitle;
+    private String mTopVideoBody;
 //    private InterstitialAd mInterstitialAd;
 
     private Timer timer;
@@ -92,7 +89,7 @@ public class TopicPickerFragment extends Fragment {
                     @Override
                     public void run() {
                         disableBarAndEnableText(mProgressBar, mMatchesPerMonthText);
-                        updateMatches();
+                        updateMatchesAndTopVideo();
                     }
                 }, 600);
             }
@@ -151,7 +148,7 @@ public class TopicPickerFragment extends Fragment {
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
-                                updateMatches();
+                                updateMatchesAndTopVideo();
                             }
                         });
                         alertDialog.show();
@@ -164,7 +161,7 @@ public class TopicPickerFragment extends Fragment {
                         }
                     }
                     if (mTopic.getmTopicName() != "") {
-                        updateMatches();
+                        updateMatchesAndTopVideo();
                     }
                 }
                 userSelect = false;
@@ -181,7 +178,7 @@ public class TopicPickerFragment extends Fragment {
 
         mMatchesPerMonthText = (TextView) v.findViewById(R.id.matches_per_month);
         if (!mTopicText.getText().toString().equals(""))
-            updateMatches();
+            updateMatchesAndTopVideo();
 //        mInterstitialAd = new InterstitialAd(getActivity());
 //        mInterstitialAd.setAdUnitId(getString(R.string.interstitial_ad_unit_id));
 //        mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("BA648A93396B1115DEF0054041E7E8EB").build());
@@ -204,6 +201,7 @@ public class TopicPickerFragment extends Fragment {
                 }
                 if (TopicList.get(getActivity()).getTopic(mTopic.getmID()) == null) {
                     TopicList.get(getActivity()).addTopic(mTopic);
+                    Util.createNotification(mTopVideoID, mTopVideoTitle, mTopVideoBody, getActivity());
                 } else {
                     TopicList.get(getActivity()).updateTopic(mTopic);
                 }
@@ -223,7 +221,7 @@ public class TopicPickerFragment extends Fragment {
         }
     }
 
-    private void updateMatches() {
+    private void updateMatchesAndTopVideo() {
         if (isNetworkAvaibaleAndConnected()) {
 
             TopicSearcher searcher = mTopic.getmTopicSearcher();
@@ -238,7 +236,9 @@ public class TopicPickerFragment extends Fragment {
                 }
                 setText(mMatchesPerMonthText, text);
             }
-
+            mTopVideoID = searcher.getmVideoIDs().get(0);
+            mTopVideoTitle = "New from " + searcher.getmResults().get(0).getSnippet().getChannelTitle();
+            mTopVideoTitle = searcher.getmResults().get(0).getSnippet().getTitle();
         }
     }
 

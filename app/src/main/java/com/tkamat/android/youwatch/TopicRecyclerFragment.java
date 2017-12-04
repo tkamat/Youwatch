@@ -1,9 +1,11 @@
 package com.tkamat.android.youwatch;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -17,6 +19,9 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +49,21 @@ public class TopicRecyclerFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_topic_recycler, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.help_button:
+                showHelpDialog();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Nullable
@@ -103,14 +123,7 @@ public class TopicRecyclerFragment extends Fragment {
 
         updateUI();
         if (isFirstTime()) {
-            final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-            alertDialog.setTitle(getString(R.string.first_time_title));
-            final TextView textView = new TextView(getActivity());
-            textView.setText(R.string.first_time_instructions);
-            textView.setTextColor(Color.BLACK);
-            textView.setTextSize(12);
-            alertDialog.setView(textView, 50, 50, 50, 50);
-            alertDialog.show();
+            showHelpDialog();
         }
 
         Util.scheduleJob(getActivity());
@@ -166,6 +179,23 @@ public class TopicRecyclerFragment extends Fragment {
             editor.commit();
         }
         return !ranBefore;
+    }
+
+    private void showHelpDialog() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+        alertDialog.setTitle(getString(R.string.first_time_title));
+        final TextView textView = new TextView(getActivity());
+        textView.setText(R.string.first_time_instructions);
+        textView.setTextColor(Color.BLACK);
+        textView.setTextSize(12);
+        alertDialog.setView(textView, 50, 50, 50, 50);
+        alertDialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        alertDialog.show();
     }
 
 
@@ -263,5 +293,6 @@ public class TopicRecyclerFragment extends Fragment {
             this.mTopics = mTopics;
         }
     }
+
 
 }
