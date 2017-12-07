@@ -242,7 +242,7 @@ public class TopicPickerFragment extends Fragment {
             if (!mTopic.ismTopVideoNotificationShown() && searcher.getmVideoIDs().size() > 0) {
                 mTopVideoID = searcher.getmVideoIDs().get(0);
                 mTopVideoTitle = "New from " + searcher.getmResults().get(0).getSnippet().getChannelTitle();
-                mTopVideoTitle = searcher.getmResults().get(0).getSnippet().getTitle();
+                mTopVideoBody = searcher.getmResults().get(0).getSnippet().getTitle();
             }
         }
     }

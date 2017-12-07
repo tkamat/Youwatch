@@ -47,7 +47,7 @@ public class TopicSearcher {
 
     private void filterResults() {
         for (int i = mResults.size() - 1; i >= 0; i--) {
-            if (mResults.get(i).getStatistics().getViewCount().compareTo(BigInteger.valueOf(minViews)) <= 0) {
+            if (mResults.get(i).getStatistics().getViewCount().compareTo(BigInteger.valueOf(minViews)) <= 0 && mVideoIDs.get(i) != null) {
                 mResults.remove(i);
                 mVideoIDs.remove(i);
             }
