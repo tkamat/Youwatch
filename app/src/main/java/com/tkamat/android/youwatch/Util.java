@@ -13,6 +13,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.tkamat.android.youwatch.TopicService.CHANNEL_ID;
 
@@ -36,6 +41,7 @@ public class Util {
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoID));
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        int id = createID();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Topic Watcher Service", NotificationManager.IMPORTANCE_DEFAULT);
             channel.setDescription("test");
@@ -47,7 +53,7 @@ public class Util {
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
                     .build();
-            notificationManager.notify(0, notification);
+            notificationManager.notify(id, notification);
         } else {
             Notification notification = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.mipmap.ic_launcher)
@@ -56,8 +62,20 @@ public class Util {
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
                     .build();
-            notificationManager.notify(0, notification);
+            notificationManager.notify(id, notification);
         }
     }
+
+    public static int createID() {
+        Date now = new Date();
+        int id = 0;
+        try {
+            id = Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(now));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+
 }
 

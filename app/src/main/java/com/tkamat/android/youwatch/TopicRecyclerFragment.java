@@ -42,7 +42,6 @@ public class TopicRecyclerFragment extends Fragment {
     private RecyclerView mTopicRecyclerView;
     private TopicAdapter mTopicAdapter;
     private FloatingActionButton mFAB;
-    private ProgressBar mProgressBar;
 //    private AdView mAdView;
 
     @Override
@@ -71,7 +70,6 @@ public class TopicRecyclerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_topic_list, container, false);
         mConstraintLayout = (ConstraintLayout) v.findViewById(R.id.constraint_layout);
-        mProgressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         mFAB = (FloatingActionButton) v.findViewById(R.id.add_button);
         mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,13 +159,11 @@ public class TopicRecyclerFragment extends Fragment {
     private void hideViews() {
         mTopicRecyclerView.setVisibility(View.GONE);
         mFAB.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     private void showViews() {
         mTopicRecyclerView.setVisibility(View.VISIBLE);
         mFAB.setVisibility(View.VISIBLE);
-        mProgressBar.setVisibility(View.GONE);
     }
 
     private boolean isFirstTime() {

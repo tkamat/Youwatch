@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -26,6 +27,7 @@ public class TopicPickerFragment extends Fragment {
     private Spinner mViewSpinner;
     private TextView mMatchesPerMonthText;
     private ProgressBar mProgressBar;
+
     private String mTopVideoID;
     private String mTopVideoTitle;
     private String mTopVideoBody;
@@ -84,12 +86,17 @@ public class TopicPickerFragment extends Fragment {
 
             @Override
             public void afterTextChanged(final Editable editable) {
+                final Handler handler = new Handler();
                 timer = new Timer();
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        disableBarAndEnableText(mProgressBar, mMatchesPerMonthText);
-                        updateMatchesAndTopVideo();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateMatchesAndTopVideo();
+                            }
+                        });
                     }
                 }, 600);
             }
@@ -136,23 +143,29 @@ public class TopicPickerFragment extends Fragment {
                         input.setInputType(InputType.TYPE_CLASS_NUMBER);
                         int maxLength = 9;
                         input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-                        alertDialog.setView(input);
+                        alertDialog.setView(input, 50, 50, 50, 50);
                         alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                String number = NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(input.getText().toString()));
+                                String number = "";
+                                try {
+                                    number = NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(input.getText().toString()));
+                                } catch (NumberFormatException e) {
+                                    e.printStackTrace();
+                                }
                                 adapter.add(number);
                                 mViewSpinner.setSelection(adapter.getPosition(number));
                                 try {
                                     mTopic.setmMinViews((NumberFormat.getNumberInstance(Locale.US).parse(number)).intValue());
                                 } catch (ParseException e) {
                                     e.printStackTrace();
+                                } catch (NumberFormatException e) {
+                                    e.printStackTrace();
                                 }
                                 updateMatchesAndTopVideo();
                             }
                         });
                         alertDialog.show();
-                        alertDialog.getWindow().setLayout(800, 500);
                     } else {
                         try {
                             mTopic.setmMinViews((NumberFormat.getNumberInstance(Locale.US).parse(adapterView.getItemAtPosition(i).toString())).intValue());
@@ -201,6 +214,11 @@ public class TopicPickerFragment extends Fragment {
                 }
                 if (TopicList.get(getActivity()).getTopic(mTopic.getmID()) == null) {
                     TopicList.get(getActivity()).addTopic(mTopic);
+                    if (!mTopic.ismTopVideoNotificationShown() && mTopic.getmTopicSearcher().getmResults().size() > 0) {
+                        mTopVideoID = mTopic.getmTopicSearcher().getmVideoIDs().get(0);
+                        mTopVideoTitle = "New from " + mTopic.getmTopicSearcher().getmResults().get(0).getSnippet().getChannelTitle();
+                        mTopVideoBody = mTopic.getmTopicSearcher().getmResults().get(0).getSnippet().getTitle();
+                    }
                     if (mTopVideoID != null && !mTopic.ismTopVideoNotificationShown()) {
                         Util.createNotification(mTopVideoID, mTopVideoTitle, mTopVideoBody, getActivity());
                         mTopic.setmTopVideoNotificationShown(true);
@@ -226,24 +244,8 @@ public class TopicPickerFragment extends Fragment {
 
     private void updateMatchesAndTopVideo() {
         if (isNetworkAvaibaleAndConnected()) {
-
             TopicSearcher searcher = mTopic.getmTopicSearcher();
-            searcher.searchForIDs().searchForVideos();
-            String matches = searcher.getNumberOfMatches();
-            String text = "";
-            if (getActivity() != null) {
-                if (matches.equals("50+")) {
-                    text = getString(R.string.text_videos_past_month, matches) + " " + getString(R.string.consider_changing);
-                } else {
-                    text = getString(R.string.text_videos_past_month, matches);
-                }
-                setText(mMatchesPerMonthText, text);
-            }
-            if (!mTopic.ismTopVideoNotificationShown() && searcher.getmVideoIDs().size() > 0) {
-                mTopVideoID = searcher.getmVideoIDs().get(0);
-                mTopVideoTitle = "New from " + searcher.getmResults().get(0).getSnippet().getChannelTitle();
-                mTopVideoBody = searcher.getmResults().get(0).getSnippet().getTitle();
-            }
+            searcher.searchForIDs(mMatchesPerMonthText, mProgressBar).searchForVideos(mMatchesPerMonthText, mProgressBar, getActivity());
         }
     }
 
@@ -272,6 +274,31 @@ public class TopicPickerFragment extends Fragment {
         boolean isNetworkConnected = isNetworkAvailable && cm.getActiveNetworkInfo().isConnected();
 
         return isNetworkConnected;
+    }
+
+
+    public String getmTopVideoID() {
+        return mTopVideoID;
+    }
+
+    public void setmTopVideoID(String mTopVideoID) {
+        this.mTopVideoID = mTopVideoID;
+    }
+
+    public String getmTopVideoTitle() {
+        return mTopVideoTitle;
+    }
+
+    public void setmTopVideoTitle(String mTopVideoTitle) {
+        this.mTopVideoTitle = mTopVideoTitle;
+    }
+
+    public String getmTopVideoBody() {
+        return mTopVideoBody;
+    }
+
+    public void setmTopVideoBody(String mTopVideoBody) {
+        this.mTopVideoBody = mTopVideoBody;
     }
 
 }

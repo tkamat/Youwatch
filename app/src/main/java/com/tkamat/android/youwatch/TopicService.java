@@ -49,7 +49,7 @@ public class TopicService extends JobService {
                 List<Video> newVideoResults = t.getmTopicSearcher().getmResults();
                 List<String> uniqueVideoIDs = new ArrayList<>();
                 for (int i = 0; i < newVideoIDs.size(); i++) {
-                    if (!oldVideoIDs.contains(newVideoIDs.get(i)) && !t.getmNotifiedVideos().contains(newVideoIDs.get(i))) {
+                    if (newVideoResults.get(i) != null && !oldVideoIDs.contains(newVideoIDs.get(i)) && !t.getmNotifiedVideos().contains(newVideoIDs.get(i))) {
                         uniqueVideoIDs.add(newVideoIDs.get(i));
                         String title = "New From " + newVideoResults.get(i).getSnippet().getChannelTitle();
                         String body = newVideoResults.get(i).getSnippet().getTitle();

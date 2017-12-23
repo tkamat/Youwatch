@@ -1,6 +1,11 @@
 package com.tkamat.android.youwatch;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
@@ -12,13 +17,14 @@ import com.google.api.client.util.Joiner;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 public class TopicSearcher {
@@ -28,21 +34,28 @@ public class TopicSearcher {
     private String searchQuery;
     private int minViews;
     private YouTube mYoutube;
+    private List<SearchResult> mSearchListResult;
+    private List<Video> mSearchVideoListResult;
     private List<String> mVideoIDs;
     private List<Video> mResults;
+    private boolean mhasSearchListFinished;
 
     public TopicSearcher(Topic topic) {
         searchQuery = topic.getmTopicName();
         minViews = topic.getmMinViews();
         mVideoIDs = new ArrayList<>();
         mResults = new ArrayList<>();
+        mhasSearchListFinished = false;
     }
 
     public String getNumberOfMatches() {
-        if (mResults.size() == 50) {
+        if (mResults != null && mResults.size() == 50) {
             return "50+";
+        } else if (mResults != null) {
+            return mResults.size() + "";
+        } else {
+            return "";
         }
-        return mResults.size() + "";
     }
 
     private void filterResults() {
@@ -58,10 +71,19 @@ public class TopicSearcher {
         return mResults;
     }
 
-    private class MakeSearchListRequest extends AsyncTask<Void, Void, List<SearchResult>> {
+    private class MakeSearchListRequest extends AsyncTask<Void, Void, Void> {
+        TextView mMatches;
+        ProgressBar mBar;
+
+        public MakeSearchListRequest() {
+        }
+        public MakeSearchListRequest(TextView mMatches, ProgressBar mBar) {
+            this.mMatches = mMatches;
+            this.mBar = mBar;
+        }
 
         @Override
-        protected List<SearchResult> doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
             HttpTransport transport = new NetHttpTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mYoutube = new YouTube.Builder(transport, jsonFactory, new HttpRequestInitializer() {
@@ -83,64 +105,114 @@ public class TopicSearcher {
                 search.setPublishedAfter(new DateTime(cal.getTime()));
                 search.setOrder("viewCount");
                 search.setRelevanceLanguage("en");
-                return search.execute().getItems();
+                mSearchListResult = search.execute().getItems();
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
             return null;
         }
-    }
-
-    private class MakeVideoListRequest extends AsyncTask<String, Void, List<Video>> {
 
         @Override
-        protected List<Video> doInBackground(String... videoId) {
-            try {
-                YouTube.Videos.List listVideosQuery = mYoutube.videos().list("snippet, recordingDetails, statistics").setId(videoId[0]);
-                listVideosQuery.setKey(API_KEY);
-                return listVideosQuery.execute().getItems();
-            } catch (IOException e) {
+        protected void onPreExecute() {
+            if (mBar != null) {
+                mBar.setVisibility(View.VISIBLE);
+            }
+            if (mMatches != null) {
+                mMatches.setVisibility(View.GONE);
+            }
+        }
 
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mVideoIDs.clear();
+            if (mSearchListResult != null) {
+                for (SearchResult result  : mSearchListResult) {
+                    mVideoIDs.add(result.getId().getVideoId());
+                }
+            }
+            mhasSearchListFinished = true;
+        }
+    }
+
+    private class MakeVideoListRequest extends AsyncTask<Void, Void, Void> {
+        private TextView mMatches;
+        private ProgressBar mBar;
+        private Context mContext;
+
+        public MakeVideoListRequest() {
+        }
+        public MakeVideoListRequest(TextView mMatches, ProgressBar mBar, Context mContext) {
+            this.mMatches = mMatches;
+            this.mBar = mBar;
+            this.mContext = mContext;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            while (!mhasSearchListFinished) {
+            }
+            Joiner stringJoiner = Joiner.on(',');
+            final String videoId = stringJoiner.join(mVideoIDs);
+            mResults.clear();
+            try {
+                YouTube.Videos.List listVideosQuery = mYoutube.videos().list("snippet, recordingDetails, statistics").setId(videoId);
+                listVideosQuery.setKey(API_KEY);
+                mSearchVideoListResult = listVideosQuery.execute().getItems();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mResults = mSearchVideoListResult;
+            if (mResults != null) {
+                filterResults();
+            }
+
+            mhasSearchListFinished = false;
+            if (mBar != null) {
+                mBar.setVisibility(View.GONE);
+            }
+            if (mMatches != null && mContext != null) {
+                mMatches.setVisibility(View.VISIBLE);
+                String text = "";
+                String matches = getNumberOfMatches();
+                if (matches.equals("50+")) {
+                    text = mContext.getString(R.string.text_videos_past_month, matches) + " " + mContext.getString(R.string.consider_changing);
+                } else {
+                    text = mContext.getString(R.string.text_videos_past_month, matches);
+                }
+                mMatches.setText(text);
+            }
+
         }
     }
 
     public TopicSearcher searchForIDs() {
-        try {
-            List<SearchResult> searchResults = new MakeSearchListRequest().execute().get();
-            mVideoIDs.clear();
-
-            if (searchResults != null) {
-                for (SearchResult result  : searchResults) {
-                    mVideoIDs.add(result.getId().getVideoId());
-                }
-            }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        MakeSearchListRequest request = new MakeSearchListRequest();
+        request.execute();
         return this;
     }
-
+    public TopicSearcher searchForIDs(TextView text, ProgressBar bar) {
+        MakeSearchListRequest request = new MakeSearchListRequest(text, bar);
+        request.execute();
+        return this;
+    }
     public TopicSearcher searchForVideos() {
-        Joiner stringJoiner = Joiner.on(',');
-        String videoId = stringJoiner.join(mVideoIDs);
-        mResults.clear();
-
-        try {
-            mResults = new MakeVideoListRequest().execute(videoId).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        if (mResults != null) {
-            filterResults();
-        }
-
+        MakeVideoListRequest request = new MakeVideoListRequest();
+        request.execute();
+        return this;
+    }
+    public TopicSearcher searchForVideos(TextView text, ProgressBar bar, Context context) {
+        MakeVideoListRequest request = new MakeVideoListRequest(text, bar, context);
+        request.execute();
         return this;
     }
 
@@ -151,5 +223,4 @@ public class TopicSearcher {
     public void setmVideoIDs(List<String> mVideoIDs) {
         this.mVideoIDs = mVideoIDs;
     }
-
 }

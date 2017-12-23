@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import com.google.api.services.youtube.model.Video;
+
 import com.google.gson.Gson;
 import database.TopicCursorWrapper;
 import database.TopicDatabaseHelper;
@@ -16,7 +16,7 @@ import java.util.UUID;
 import static database.TopicDatabaseSchema.*;
 
 public class TopicList {
-    private static TopicList sTopicList;
+    private static volatile TopicList sTopicList;
     private Context mContext;
     private SQLiteDatabase mDatabase;
 
@@ -26,16 +26,33 @@ public class TopicList {
     }
 
     public static TopicList get(Context context) {
-        if (sTopicList == null)
-            return new TopicList(context);
-        else
-            return sTopicList;
+        if (sTopicList == null) {
+            synchronized (TopicList.class) {
+                if (sTopicList == null) {
+                    sTopicList = new TopicList(context);
+                }
+            }
+        } else if (!sTopicList.getmDatabase().isOpen()) {
+            sTopicList.setmDatabase(new TopicDatabaseHelper(sTopicList.getmContext()).getWritableDatabase());
+        }
+        return sTopicList;
+    }
+
+    private SQLiteDatabase getmDatabase() {
+        return mDatabase;
+    }
+
+    private void setmDatabase(SQLiteDatabase db) {
+        mDatabase = db;
+    }
+
+    private Context getmContext() {
+        return mContext;
     }
 
     public List<Topic> getTopics() {
         List<Topic> topics = new ArrayList<>();
-        TopicCursorWrapper cursor = queryCrimes(null, null);
-
+        TopicCursorWrapper cursor = queryTopics(null, null);
         try {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -60,16 +77,19 @@ public class TopicList {
     }
 
     public Topic getTopic(UUID id) {
-        TopicCursorWrapper cursor = queryCrimes(TopicTable.Cols.UUID + " = ?", new String[] {id.toString()});
+        TopicCursorWrapper cursor = queryTopics(TopicTable.Cols.UUID + " = ?", new String[] {id.toString()});
 
         try {
             if (cursor.getCount() == 0)
                 return null;
             cursor.moveToFirst();
             return cursor.getTopic();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         } finally {
             cursor.close();
         }
+        return new Topic("", 10000);
     }
 
     public void addTopic(Topic topic) {
@@ -109,15 +129,14 @@ public class TopicList {
         return values;
     }
 
-    private TopicCursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
+    private TopicCursorWrapper queryTopics(String whereClause, String[] whereArgs) {
         Cursor cursor = mDatabase.query(TopicTable.NAME,
-                null,
-                whereClause,
-                whereArgs,
-                null,
-                null,
-                null);
-
+                    null,
+                    whereClause,
+                    whereArgs,
+                    null,
+                    null,
+                    null);
         return new TopicCursorWrapper(cursor);
     }
 

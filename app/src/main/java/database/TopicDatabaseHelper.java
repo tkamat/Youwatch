@@ -8,6 +8,8 @@ import static database.TopicDatabaseSchema.*;
 
 public class TopicDatabaseHelper extends SQLiteOpenHelper {
 
+    private int openConnections = 0;
+
     private static final int VERSION = 10;
     private static final String DATABASE_NAME = "topicDatabase.db";
 
@@ -15,6 +17,17 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, VERSION);
     }
 
+    @Override
+    public SQLiteDatabase getReadableDatabase() {
+        openConnections++;
+        return super.getReadableDatabase();
+    }
+
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+        openConnections++;
+        return super.getWritableDatabase();
+    }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
@@ -40,5 +53,13 @@ public class TopicDatabaseHelper extends SQLiteOpenHelper {
     protected void finalize() throws Throwable {
         this.close();
         super.finalize();
+    }
+
+    @Override
+    public synchronized void close() {
+        openConnections--;
+        if (openConnections == 0) {
+            super.close();
+        }
     }
 }
