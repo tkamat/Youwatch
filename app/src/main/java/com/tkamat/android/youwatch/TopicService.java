@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -40,22 +41,25 @@ public class TopicService extends JobService {
             return false;
         }
         List<Topic> topics = TopicList.get(this).getTopics();
-        for (Topic t : topics) {
+        for (final Topic t : topics) {
             if (t.ismEnabled()) {
-                List<String> oldVideoIDs = t.getmTopicSearcher().getmVideoIDs();
+                final List<String> oldVideoIDs = t.getmTopicSearcher().getmVideoIDs();
                 t.setmTopicSearcher(new TopicSearcher(t));
-                t.getmTopicSearcher().searchForIDs().searchForVideos();
+                t.getmTopicSearcher().searchForIDsService().searchForVideosService();
                 List<String> newVideoIDs = t.getmTopicSearcher().getmVideoIDs();
                 List<Video> newVideoResults = t.getmTopicSearcher().getmResults();
                 List<String> uniqueVideoIDs = new ArrayList<>();
                 for (int i = 0; i < newVideoIDs.size(); i++) {
-                    if (newVideoResults.get(i) != null && !oldVideoIDs.contains(newVideoIDs.get(i)) && !t.getmNotifiedVideos().contains(newVideoIDs.get(i))) {
+                    if (i < newVideoResults.size() &&
+                            newVideoResults.get(i) != null &&
+                            !oldVideoIDs.contains(newVideoIDs.get(i)) &&
+                            !t.getmNotifiedVideos().contains(newVideoIDs.get(i))) {
                         uniqueVideoIDs.add(newVideoIDs.get(i));
                         String title = "New From " + newVideoResults.get(i).getSnippet().getChannelTitle();
                         String body = newVideoResults.get(i).getSnippet().getTitle();
                         t.getmNotifiedVideos().add(newVideoIDs.get(i));
-                        TopicList.get(this).updateTopic(t);
-                        Util.createNotification(newVideoIDs.get(i), title, body, this);
+                        TopicList.get(TopicService.this).updateTopic(t);
+                        Util.createNotification(newVideoIDs.get(i), title, body, TopicService.this);
                     }
                 }
                 Log.i(TAG, "Topic refreshed");

@@ -19,8 +19,17 @@
         topics become popular. You can get started in 3 easy steps.\n\n
         1. Click the "+" button in the bottom right corner of the screen.\n
         2. Type in a topic you are interested in the box, and select a minimum number of views.\n
-        3. Look at the matches found last month, and adjust the topic name and the minimum views until you find a number you are comfortable with. This number will reflect the number of notifications you should get per month. Click the checkmark in the top right when you are done, and you should get a notification immediately, with more coming as new videos are uploaded.
+        3. Look at the matches found last month, and adjust the topic name and the minimum views
+        until you find a number you are comfortable with. This number will reflect the number of
+        notifications you should get per month. Click the checkmark in the top right when you are done,
+        and you should get a notification immediately, with more coming as new videos are uploaded.
     </string>
     <string name="limit_reached_toast">Topic limit reached</string>
-
+    <string name="update_alert_title">What\'s New</string>
+    <string name="update_alert_text">
+        <font size="18">1.8</font> \n\n
+        - Added \"What\'s New\" screen for new updates.\n
+        - Displays a list of old video matches for each topic.\n
+        - Other small tweaks and bug fixes.
+    </string>
 </resources>

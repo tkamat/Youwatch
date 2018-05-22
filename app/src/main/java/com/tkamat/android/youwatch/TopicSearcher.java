@@ -35,10 +35,12 @@ public class TopicSearcher {
     private int minViews;
     private YouTube mYoutube;
     private List<SearchResult> mSearchListResult;
-    private List<Video> mSearchVideoListResult;
     private List<String> mVideoIDs;
     private List<Video> mResults;
     private boolean mhasSearchListFinished;
+    private List<String> mNotifiedVideoIDs;
+    private List<String> mNotifiedVideoTitles;
+    private List<String> mNotifiedVideoCreators;
 
     public TopicSearcher(Topic topic) {
         searchQuery = topic.getmTopicName();
@@ -46,6 +48,9 @@ public class TopicSearcher {
         mVideoIDs = new ArrayList<>();
         mResults = new ArrayList<>();
         mhasSearchListFinished = false;
+        mNotifiedVideoIDs = topic.getmNotifiedVideos();
+        mNotifiedVideoTitles = new ArrayList<>();
+        mNotifiedVideoCreators = new ArrayList<>();
     }
 
     public String getNumberOfMatches() {
@@ -138,6 +143,7 @@ public class TopicSearcher {
         private TextView mMatches;
         private ProgressBar mBar;
         private Context mContext;
+        private List<Video> mSearchVideoListResult;
 
         public MakeVideoListRequest() {
         }
@@ -149,13 +155,16 @@ public class TopicSearcher {
 
         @Override
         protected Void doInBackground(Void... params) {
-            while (!mhasSearchListFinished) {
+            if (mContext != null) {
+                while (!mhasSearchListFinished) {
+                    //wait for SearchList
+                }
             }
             Joiner stringJoiner = Joiner.on(',');
-            final String videoId = stringJoiner.join(mVideoIDs);
+            final String videoIds = stringJoiner.join(mVideoIDs);
             mResults.clear();
             try {
-                YouTube.Videos.List listVideosQuery = mYoutube.videos().list("snippet, recordingDetails, statistics").setId(videoId);
+                YouTube.Videos.List listVideosQuery = mYoutube.videos().list("snippet, recordingDetails, statistics").setId(videoIds);
                 listVideosQuery.setKey(API_KEY);
                 mSearchVideoListResult = listVideosQuery.execute().getItems();
             } catch (IOException e) {
@@ -195,6 +204,36 @@ public class TopicSearcher {
         }
     }
 
+    private class MakeVideoListRequestForNotifiedVideos extends AsyncTask<Void, Void, Void> {
+        private List<Video> mNotifiedVideoList;
+
+        public MakeVideoListRequestForNotifiedVideos() {
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Joiner stringJoiner = Joiner.on(',');
+            final String videoIds = stringJoiner.join(mNotifiedVideoIDs);
+            try {
+                YouTube.Videos.List listVideosQuery = mYoutube.videos().list("snippet, recordingDetails, statistics").setId(videoIds);
+                listVideosQuery.setKey(API_KEY);
+                 mNotifiedVideoList = listVideosQuery.execute().getItems();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            for (Video video : mNotifiedVideoList) {
+                mNotifiedVideoTitles.add(video.getSnippet().getTitle());
+                mNotifiedVideoCreators.add(video.getSnippet().getChannelTitle());
+            }
+        }
+    }
+
     public TopicSearcher searchForIDs() {
         MakeSearchListRequest request = new MakeSearchListRequest();
         request.execute();
@@ -205,6 +244,19 @@ public class TopicSearcher {
         request.execute();
         return this;
     }
+    public TopicSearcher searchForIDsService() {
+        MakeSearchListRequest request = new MakeSearchListRequest();
+        try {
+            Void v = request.execute().get();
+            request.onPostExecute(null);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
     public TopicSearcher searchForVideos() {
         MakeVideoListRequest request = new MakeVideoListRequest();
         request.execute();
@@ -212,6 +264,24 @@ public class TopicSearcher {
     }
     public TopicSearcher searchForVideos(TextView text, ProgressBar bar, Context context) {
         MakeVideoListRequest request = new MakeVideoListRequest(text, bar, context);
+        request.execute();
+        return this;
+    }
+    public TopicSearcher searchForVideosService() {
+        MakeVideoListRequest request = new MakeVideoListRequest();
+        try {
+            Void v = request.execute().get();
+            request.onPostExecute(null);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
+    public TopicSearcher searchForVideosFromPreviouslyNotified() {
+        MakeVideoListRequestForNotifiedVideos request = new MakeVideoListRequestForNotifiedVideos();
         request.execute();
         return this;
     }

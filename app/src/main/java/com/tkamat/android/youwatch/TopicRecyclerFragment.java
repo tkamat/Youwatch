@@ -8,6 +8,8 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -123,6 +125,9 @@ public class TopicRecyclerFragment extends Fragment {
         if (isFirstTime()) {
             showHelpDialog();
         }
+//        if (isFirstTimeAfterUpdate()) {
+            showUpdateDialog();
+//        }
 
         Util.scheduleJob(getActivity());
         return v;
@@ -183,8 +188,8 @@ public class TopicRecyclerFragment extends Fragment {
         final TextView textView = new TextView(getActivity());
         textView.setText(R.string.first_time_instructions);
         textView.setTextColor(Color.BLACK);
-        textView.setTextSize(12);
-        alertDialog.setView(textView, 50, 50, 50, 50);
+        textView.setTextSize(14);
+        alertDialog.setView(textView, 24, 48, 24, 12);
         alertDialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -194,6 +199,47 @@ public class TopicRecyclerFragment extends Fragment {
         alertDialog.show();
     }
 
+    private boolean isFirstTimeAfterUpdate() {
+        if (isFirstTime() == true) {
+            return false;
+        }
+        try {
+            PackageInfo packageInfo = getActivity()
+                    .getPackageManager()
+                    .getPackageInfo(getActivity().getPackageName(), 0);
+            int currentVersion = packageInfo.versionCode;
+            SharedPreferences preferences = getActivity().getPreferences(MODE_PRIVATE);
+            int lastRunVersion = preferences.getInt("LastRunVersion", 7);
+            if (currentVersion > lastRunVersion) {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("LastRunVersion", currentVersion);
+                editor.commit();
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void showUpdateDialog() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+        alertDialog.setTitle(getString(R.string.update_alert_title));
+        final TextView textView = new TextView(getActivity());
+        textView.setText(R.string.update_alert_text);
+        textView.setTextColor(Color.BLACK);
+        textView.setTextSize(14);
+        alertDialog.setView(textView, 24, 48, 24, 12);
+        alertDialog.setButton(Dialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        alertDialog.show();
+    }
 
     private class TopicHolder extends RecyclerView.ViewHolder {
         private Topic mTopic;
