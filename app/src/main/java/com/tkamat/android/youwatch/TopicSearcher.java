@@ -2,6 +2,7 @@ package com.tkamat.android.youwatch;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -65,7 +66,9 @@ public class TopicSearcher {
 
     private void filterResults() {
         for (int i = mResults.size() - 1; i >= 0; i--) {
-            if (mResults.get(i).getStatistics().getViewCount().compareTo(BigInteger.valueOf(minViews)) <= 0 && mVideoIDs.get(i) != null) {
+            if (mResults.get(i).getStatistics().getViewCount() != null &&
+                    mResults.get(i).getStatistics().getViewCount().compareTo(BigInteger.valueOf(minViews)) <= 0 &&
+                    mVideoIDs.get(i) != null) {
                 mResults.remove(i);
                 mVideoIDs.remove(i);
             }
@@ -206,21 +209,27 @@ public class TopicSearcher {
 
     private class MakeVideoListRequestForNotifiedVideos extends AsyncTask<Void, Void, Void> {
         private List<Video> mNotifiedVideoList;
+        private TopicPickerFragment.VideoAdapter videoAdapter;
 
-        public MakeVideoListRequestForNotifiedVideos() {
-
+        public MakeVideoListRequestForNotifiedVideos(TopicPickerFragment.VideoAdapter videoAdapter) {
+            this.mNotifiedVideoList = new ArrayList<>();
+            this.videoAdapter = videoAdapter;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Joiner stringJoiner = Joiner.on(',');
-            final String videoIds = stringJoiner.join(mNotifiedVideoIDs);
-            try {
-                YouTube.Videos.List listVideosQuery = mYoutube.videos().list("snippet, recordingDetails, statistics").setId(videoIds);
-                listVideosQuery.setKey(API_KEY);
-                 mNotifiedVideoList = listVideosQuery.execute().getItems();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (mNotifiedVideoIDs != null) {
+                Joiner stringJoiner = Joiner.on(',');
+                final String videoIds = stringJoiner.join(mNotifiedVideoIDs);
+                try {
+                    YouTube.Videos.List listVideosQuery = mYoutube.videos().list("snippet, recordingDetails, statistics").setId(videoIds);
+                    listVideosQuery.setKey(API_KEY);
+                    mNotifiedVideoList = listVideosQuery.execute().getItems();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
             }
             return null;
         }
@@ -231,6 +240,10 @@ public class TopicSearcher {
                 mNotifiedVideoTitles.add(video.getSnippet().getTitle());
                 mNotifiedVideoCreators.add(video.getSnippet().getChannelTitle());
             }
+            videoAdapter.setmVideoIDs(mNotifiedVideoIDs);
+            videoAdapter.setmVideoTitles(mNotifiedVideoTitles);
+            videoAdapter.setmVideoCreators(mNotifiedVideoCreators);
+            videoAdapter.notifyDataSetChanged();
         }
     }
 
@@ -280,8 +293,9 @@ public class TopicSearcher {
         return this;
     }
 
-    public TopicSearcher searchForVideosFromPreviouslyNotified() {
-        MakeVideoListRequestForNotifiedVideos request = new MakeVideoListRequestForNotifiedVideos();
+    public TopicSearcher searchForVideosFromPreviouslyNotified(TopicPickerFragment.VideoAdapter videoAdapter) {
+        MakeVideoListRequestForNotifiedVideos request =
+                new MakeVideoListRequestForNotifiedVideos(videoAdapter);
         request.execute();
         return this;
     }
@@ -292,5 +306,9 @@ public class TopicSearcher {
 
     public void setmVideoIDs(List<String> mVideoIDs) {
         this.mVideoIDs = mVideoIDs;
+    }
+
+    public void setmNotifiedVideoIDs(List<String> mNotifiedVideoIDs) {
+        this.mNotifiedVideoIDs = mNotifiedVideoIDs;
     }
 }

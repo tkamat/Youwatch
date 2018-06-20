@@ -106,7 +106,6 @@ public class TopicRecyclerFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (dy > 0 || dy < 0 && mFAB.isShown()) {
-                    //test
                     mFAB.hide();
                 }
             }
@@ -125,9 +124,9 @@ public class TopicRecyclerFragment extends Fragment {
         if (isFirstTime()) {
             showHelpDialog();
         }
-//        if (isFirstTimeAfterUpdate()) {
+        if (isFirstTimeAfterUpdate()) {
             showUpdateDialog();
-//        }
+        }
 
         Util.scheduleJob(getActivity());
         return v;

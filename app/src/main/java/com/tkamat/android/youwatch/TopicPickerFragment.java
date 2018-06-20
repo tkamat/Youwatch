@@ -1,16 +1,24 @@
 package com.tkamat.android.youwatch;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Layout;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.*;
 import android.widget.*;
 
@@ -27,6 +35,8 @@ public class TopicPickerFragment extends Fragment {
     private Spinner mViewSpinner;
     private TextView mMatchesPerMonthText;
     private ProgressBar mProgressBar;
+    private RecyclerView mRecyclerView;
+    private VideoAdapter mVideoAdapter;
 
     private String mTopVideoID;
     private String mTopVideoTitle;
@@ -192,6 +202,13 @@ public class TopicPickerFragment extends Fragment {
         mMatchesPerMonthText = (TextView) v.findViewById(R.id.matches_per_month);
         if (!mTopicText.getText().toString().equals(""))
             updateMatchesAndTopVideo();
+
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.notified_recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mVideoAdapter = new VideoAdapter();
+        mRecyclerView.setAdapter(mVideoAdapter);
+        mTopic.getmTopicSearcher().setmNotifiedVideoIDs(mTopic.getmNotifiedVideos());
+        mTopic.getmTopicSearcher().searchForVideosFromPreviouslyNotified(mVideoAdapter);
 //        mInterstitialAd = new InterstitialAd(getActivity());
 //        mInterstitialAd.setAdUnitId(getString(R.string.interstitial_ad_unit_id));
 //        mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("BA648A93396B1115DEF0054041E7E8EB").build());
@@ -213,7 +230,6 @@ public class TopicPickerFragment extends Fragment {
                     return true;
                 }
                 if (TopicList.get(getActivity()).getTopic(mTopic.getmID()) == null) {
-                    TopicList.get(getActivity()).addTopic(mTopic);
                     if (!mTopic.ismTopVideoNotificationShown() && mTopic.getmTopicSearcher().getmResults().size() > 0) {
                         mTopVideoID = mTopic.getmTopicSearcher().getmVideoIDs().get(0);
                         mTopVideoTitle = "New from " + mTopic.getmTopicSearcher().getmResults().get(0).getSnippet().getChannelTitle();
@@ -222,7 +238,9 @@ public class TopicPickerFragment extends Fragment {
                     if (mTopVideoID != null && !mTopic.ismTopVideoNotificationShown()) {
                         Util.createNotification(mTopVideoID, mTopVideoTitle, mTopVideoBody, getActivity());
                         mTopic.setmTopVideoNotificationShown(true);
+                        mTopic.getmNotifiedVideos().add(mTopVideoID);
                     }
+                    TopicList.get(getActivity()).addTopic(mTopic);
                 } else {
                     TopicList.get(getActivity()).updateTopic(mTopic);
                 }
@@ -275,6 +293,86 @@ public class TopicPickerFragment extends Fragment {
 
         return isNetworkConnected;
     }
+
+   private class VideoHolder extends RecyclerView.ViewHolder {
+        private TextView mVideoTitleText;
+        private TextView mVideoCreatorText;
+
+        public VideoHolder(LayoutInflater inflater, ViewGroup parent) {
+            super(inflater.inflate(R.layout.list_item_notified_video, parent, false));
+            mVideoTitleText = (TextView) itemView.findViewById(R.id.video_title);
+            mVideoTitleText.setMovementMethod(LinkMovementMethod.getInstance());
+            mVideoTitleText.setClickable(true);
+            mVideoCreatorText = (TextView) itemView.findViewById(R.id.channel_name);
+        }
+
+        @SuppressLint("SetTextI18n")
+        public void bind(String videoID, String videoTitle, String videoCreator) {
+            mVideoTitleText.setText(
+                    Html.fromHtml(
+                    "<a href=\"https://www.youtube.com/watch?v=" +
+                            videoID +
+                            "\">" +
+                            videoTitle +
+                            "</a>"));
+            mVideoCreatorText.setText("From " + videoCreator);
+        }
+   }
+
+   public class VideoAdapter extends RecyclerView.Adapter<VideoHolder> {
+       private List<String> mVideoIDs;
+       private List<String> mVideoTitles;
+       private List<String> mVideoCreators;
+
+       public VideoAdapter() {
+           mVideoIDs = new ArrayList<>();
+           mVideoTitles = new ArrayList<>();
+           mVideoCreators = new ArrayList<>();
+       }
+
+       @NonNull
+       @Override
+       public VideoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+           LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+           return new VideoHolder(layoutInflater, parent);
+       }
+
+       @Override
+       public void onBindViewHolder(@NonNull VideoHolder holder, int position) {
+           String videoID = "";
+           String videoTitle = "";
+           String videoCreator = "";
+           try {
+               videoID = mVideoIDs.get(position);
+               videoTitle = mVideoTitles.get(position);
+               videoCreator = mVideoCreators.get(position);
+           } catch (IndexOutOfBoundsException e) {
+               e.printStackTrace();
+           }
+           holder.bind(videoID, videoTitle, videoCreator);
+       }
+
+       @Override
+       public int getItemCount() {
+           if (mVideoIDs == null) {
+               return 0;
+           } else {
+               return mVideoIDs.size();
+           }
+       }
+
+       public void setmVideoIDs(List<String> mVideoIDs) {
+           this.mVideoIDs = mVideoIDs;
+       }
+
+       public void setmVideoTitles(List<String> mVideoTitles) {
+           this.mVideoTitles = mVideoTitles;
+       }
+
+       public void setmVideoCreators(List<String> mVideoCreators) {
+           this.mVideoCreators = mVideoCreators;
+       }
+   }
 
 
     public String getmTopVideoID() {
