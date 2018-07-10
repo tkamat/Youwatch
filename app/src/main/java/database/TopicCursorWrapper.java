@@ -37,10 +37,10 @@ public class TopicCursorWrapper extends CursorWrapper {
         List<String> notifiedVideos = gson.fromJson(notifiedVideosString, type);
 
         Topic topic = new Topic(title, views, UUID.fromString(uuidString));
-        topic.setmEnabled(enabled != 0);
-        topic.getmTopicSearcher().setmVideoIDs(videoIDs);
-        topic.setmNotifiedVideos(notifiedVideos);
-        topic.setmTopVideoNotificationShown(enabled != 0);
+        topic.setEnabled(enabled != 0);
+        topic.getTopicSearcher().setVideoIDs((ArrayList<String>) videoIDs);
+        topic.setNotifiedVideos((ArrayList<String>) notifiedVideos);
+        topic.setTopVideoNotificationShown(enabled != 0);
 
         return topic;
     }
