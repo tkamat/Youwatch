@@ -2,17 +2,12 @@ package com.tkamat.android.youwatch
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-
 import com.google.gson.Gson
 import database.TopicCursorWrapper
 import database.TopicDatabaseHelper
-
-import java.util.ArrayList
-import java.util.UUID
-
-import database.TopicDatabaseSchema.*
+import database.TopicDatabaseSchema.TopicTable
+import java.util.*
 
 class TopicList private constructor(context: Context) {
     private val context: Context = context.applicationContext
@@ -23,16 +18,13 @@ class TopicList private constructor(context: Context) {
             val topics = ArrayList<Topic>()
             val cursor = queryTopics(
                     null, null)
-            try {
-                cursor.moveToFirst()
-                while (!cursor.isAfterLast) {
-                    topics.add(cursor.topic)
-                    cursor.moveToNext()
+            cursor.use {
+                it?.moveToFirst()
+                while (it?.isAfterLast == false) {
+                    topics.add(it.topic)
+                    it.moveToNext()
                 }
-            } finally {
-                cursor.close()
             }
-
             return topics
         }
 
@@ -55,14 +47,14 @@ class TopicList private constructor(context: Context) {
         val cursor = queryTopics(TopicTable.Cols.UUID + " = ?", arrayOf(id.toString()))
 
         try {
-            if (cursor.count == 0)
+            if (cursor?.count == 0)
                 return null
-            cursor.moveToFirst()
-            return cursor.topic
+            cursor?.moveToFirst()
+            return cursor?.topic
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         } finally {
-            cursor.close()
+            cursor?.close()
         }
         return Topic("", 10000)
     }
@@ -83,11 +75,13 @@ class TopicList private constructor(context: Context) {
         database?.delete(TopicTable.NAME, TopicTable.Cols.UUID + " = ?", arrayOf(id.toString()))
     }
 
-    private fun queryTopics(whereClause: String?, whereArgs: Array<String>?): TopicCursorWrapper {
+    private fun queryTopics(whereClause: String?, whereArgs: Array<String>?): TopicCursorWrapper? {
         val cursor = database?.query(TopicTable.NAME, null,
                 whereClause,
                 whereArgs, null, null, null)
-        return TopicCursorWrapper(cursor)
+        cursor?.let {
+            return TopicCursorWrapper(it)
+        } ?: return null
     }
 
     companion object {

@@ -2,16 +2,12 @@ package com.tkamat.android.youwatch
 
 import android.content.Context
 import android.os.AsyncTask
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 
-import com.google.api.client.http.HttpRequest
 import com.google.api.client.http.HttpRequestInitializer
-import com.google.api.client.http.HttpTransport
 import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.DateTime
 import com.google.api.client.util.Joiner
@@ -23,15 +19,12 @@ import java.io.IOException
 import java.math.BigInteger
 import java.util.ArrayList
 import java.util.Calendar
-import java.util.Timer
-import java.util.TimerTask
 import java.util.concurrent.ExecutionException
 
 const val API_KEY = "AIzaSyB12Ik50RFYt4jixEcpNTSQ7hBT4d-JmjU"
 const val NUMBER_OF_VIDEOS: Long = 50
 
 class TopicSearcher(topic: Topic) {
-
     val searchQuery: String = topic.topicName
     val minViews: Int = topic.minViews
     var notifiedVideoIDs: List<String>? = topic.notifiedVideos
@@ -93,7 +86,7 @@ class TopicSearcher(topic: Topic) {
                     order = "viewCount"
                     relevanceLanguage = "en"
                 }
-                searchListResult = search?.execute()?.items as ArrayList<SearchResult>?
+                searchListResult = search?.execute()?.items as? ArrayList<SearchResult>
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -154,7 +147,7 @@ class TopicSearcher(topic: Topic) {
         }
 
         public override fun onPostExecute(aVoid: Void?) {
-            videoResults = searchVideoListResult as ArrayList<Video>
+            videoResults = searchVideoListResult as? ArrayList<Video>
             filterResults()
 
             hasSearchListFinished = false
@@ -170,13 +163,9 @@ class TopicSearcher(topic: Topic) {
         }
     }
 
-    private inner class MakeVideoListRequestForNotifiedVideos : AsyncTask<Void, Void, Void> {
+    private inner class MakeVideoListRequestForNotifiedVideos(videoAdapter: TopicPickerFragment.VideoAdapter) : AsyncTask<Void, Void, Void>() {
         private var notifiedVideoList: List<Video>? = ArrayList()
-        private var videoAdapter: TopicPickerFragment.VideoAdapter? = null
-
-        constructor(videoAdapter: TopicPickerFragment.VideoAdapter) {
-            this.videoAdapter = videoAdapter
-        }
+        private var videoAdapter: TopicPickerFragment.VideoAdapter? = videoAdapter
 
         override fun doInBackground(vararg voids: Void): Void? {
             val stringJoiner = Joiner.on(',')
@@ -202,18 +191,12 @@ class TopicSearcher(topic: Topic) {
                 }
             }
             videoAdapter?.apply {
-                setmVideoIDs(notifiedVideoIDs)
-                setmVideoTitles(notifiedVideoTitles)
-                setmVideoCreators(notifiedVideoCreators)
+                videoIDs = notifiedVideoIDs ?: ArrayList()
+                videoTitles = notifiedVideoTitles ?: ArrayList()
+                videoCreators = notifiedVideoCreators ?: ArrayList()
                 notifyDataSetChanged()
             }
         }
-    }
-
-    fun searchForIDs(): TopicSearcher {
-        val request = MakeSearchListRequest()
-        request.execute()
-        return this
     }
 
     fun searchForIDs(text: TextView, bar: ProgressBar): TopicSearcher {
@@ -232,13 +215,6 @@ class TopicSearcher(topic: Topic) {
         } catch (e: ExecutionException) {
             e.printStackTrace()
         }
-
-        return this
-    }
-
-    fun searchForVideos(): TopicSearcher {
-        val request = MakeVideoListRequest()
-        request.execute()
         return this
     }
 
@@ -258,7 +234,6 @@ class TopicSearcher(topic: Topic) {
         } catch (e: ExecutionException) {
             e.printStackTrace()
         }
-
         return this
     }
 

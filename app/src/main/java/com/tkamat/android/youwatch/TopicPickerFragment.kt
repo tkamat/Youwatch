@@ -55,9 +55,9 @@ class TopicPickerFragment : Fragment() {
         setHasOptionsMenu(true)
         activity?.let { act ->
             arguments?.let { arg ->
-                topic = TopicList[act]?.getTopic(arg.getSerializable(ARG_TOPIC_ID) as UUID) ?: Topic("", 0)
+                topic = TopicList[act]?.getTopic(arg.getSerializable(ARG_TOPIC_ID) as UUID) ?: Topic("", 100000)
             }
-        } ?: Topic("", 0)
+        } ?: Topic("", 100000)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -128,7 +128,7 @@ class TopicPickerFragment : Fragment() {
                 return false
             }
 
-            override fun onItemSelected(adapterView: AdapterView<*>, view: View, i: Int, l: Long) {
+            override fun onItemSelected(adapterView: AdapterView<*>, view: View?, i: Int, l: Long) {
                 if (userSelect) {
                     if (i == 0) {
                         var alertDialog: AlertDialog? = null
@@ -180,6 +180,7 @@ class TopicPickerFragment : Fragment() {
                 userSelect = false
             }
 
+
             override fun onNothingSelected(adapterView: AdapterView<*>) {
 
             }
@@ -207,7 +208,7 @@ class TopicPickerFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater!!.inflate(R.menu.fragment_topic_picker, menu)
+        inflater?.inflate(R.menu.fragment_topic_picker, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -225,7 +226,9 @@ class TopicPickerFragment : Fragment() {
                             topVideoBody = topic.topicSearcher?.videoResults?.get(0)?.snippet?.title
                         }
                         if (topVideoID != null && !topic.topVideoNotificationShown) {
-                            Util.createNotification(topVideoID!!, topVideoTitle!!, topVideoBody!!, activity!!)
+                            activity?.let {
+                                Util.createNotification(topVideoID ?: "", topVideoTitle ?: "", topVideoBody ?: "", it)
+                            }
                             topic.topVideoNotificationShown = true
                             topVideoID?.let {
                                 topic.notifiedVideos.add(it)
@@ -272,7 +275,7 @@ class TopicPickerFragment : Fragment() {
         }
     }
 
-    private inner class VideoHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_notified_video, parent, false)) {
+    inner class VideoHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_notified_video, parent, false)) {
         private val videoTitleText: TextView = itemView.findViewById<View>(R.id.video_title) as TextView
         private val videoCreatorText: TextView = itemView.findViewById<View>(R.id.channel_name) as TextView
 
@@ -292,10 +295,10 @@ class TopicPickerFragment : Fragment() {
         }
     }
 
-    private inner class VideoAdapter : RecyclerView.Adapter<VideoHolder>() {
-        private var videoIDs: List<String> = ArrayList()
-        private var videoTitles: List<String> = ArrayList()
-        private var videoCreators: List<String> = ArrayList()
+    inner class VideoAdapter : RecyclerView.Adapter<VideoHolder>() {
+        var videoIDs: List<String> = ArrayList()
+        var videoTitles: List<String> = ArrayList()
+        var videoCreators: List<String> = ArrayList()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoHolder {
             val layoutInflater = LayoutInflater.from(activity)

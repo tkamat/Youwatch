@@ -23,6 +23,7 @@ import java.util.UUID
 
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.content.pm.PackageInfo
 
 class TopicRecyclerFragment : Fragment() {
     private lateinit var constraintLayout: ConstraintLayout
@@ -34,7 +35,7 @@ class TopicRecyclerFragment : Fragment() {
         get() {
             var preferences: SharedPreferences? = null
             activity?.let {
-                preferences = activity!!.getPreferences(MODE_PRIVATE)
+                preferences = it.getPreferences(MODE_PRIVATE)
             }
             val ranBefore = preferences?.getBoolean("RanBefore", false)
             if (ranBefore == false) {
@@ -51,16 +52,20 @@ class TopicRecyclerFragment : Fragment() {
                 return false
             }
             try {
-                val packageInfo = activity!!
-                        .packageManager
-                        .getPackageInfo(activity!!.packageName, 0)
-                val currentVersion = packageInfo.versionCode
-                val preferences = activity!!.getPreferences(MODE_PRIVATE)
-                val lastRunVersion = preferences.getInt("LastRunVersion", 7)
+                var packageInfo: PackageInfo? = null
+                var preferences: SharedPreferences? = null
+                activity?.let {
+                    packageInfo = it
+                            .packageManager
+                            .getPackageInfo(it.packageName, 0)
+                    preferences = it.getPreferences(MODE_PRIVATE)
+                }
+                val currentVersion = packageInfo?.versionCode ?: 0
+                val lastRunVersion = preferences?.getInt("LastRunVersion", 7) ?: 0
                 return if (currentVersion > lastRunVersion) {
-                    val editor = preferences.edit()
-                    editor.putInt("LastRunVersion", currentVersion)
-                    editor.commit()
+                    val editor = preferences?.edit()
+                    editor?.putInt("LastRunVersion", currentVersion)
+                    editor?.commit()
                     true
                 } else {
                     false
@@ -146,7 +151,9 @@ class TopicRecyclerFragment : Fragment() {
             showUpdateDialog()
         }
 
-        Util.scheduleJob(activity!!)
+        activity?.let {
+            Util.scheduleJob(it)
+        }
         return v
     }
 
@@ -158,15 +165,22 @@ class TopicRecyclerFragment : Fragment() {
     private fun updateUI() {
         showViews()
 
-        val topicList = TopicList[activity!!]
-        val topics = topicList!!.topics
+        var topicList: TopicList? = null
+        activity?.let {
+            topicList = TopicList[it]
+        }
+        val topics = topicList?.topics
 
         if (topicAdapter == null) {
-            topicAdapter = TopicAdapter(topics)
-            topicRecyclerView.adapter = topicAdapter
+            topics?.let {
+                topicAdapter = TopicAdapter(it)
+                topicRecyclerView.adapter = topicAdapter
+            }
         } else {
-            topicAdapter?.setTopics(topics)
-            topicAdapter?.notifyDataSetChanged()
+            topics?.let {
+                topicAdapter?.setTopics(it)
+                topicAdapter?.notifyDataSetChanged()
+            }
         }
     }
 
@@ -229,20 +243,22 @@ class TopicRecyclerFragment : Fragment() {
                 }
 
                 override fun onCheckedChanged(compoundButton: CompoundButton, b: Boolean) {
-                    if (userSelect) {
-                        if (TopicList[activity!!]!!.enabledTopics.size <= 10) {
-                            topic?.enabled = b
-                            if (b)
-                                Toast.makeText(activity, getString(R.string.toast_enabled), Toast.LENGTH_SHORT).show()
-                            else
-                                Toast.makeText(activity, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
-                        } else if (b) {
-                            Toast.makeText(activity, getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show()
-                            userSelect = false
-                            switch.isChecked = false
-                        } else if (!b) {
-                            topic?.enabled = false
-                            Toast.makeText(activity, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
+                    activity?.let {
+                        if (userSelect) {
+                            if (TopicList[it]?.enabledTopics?.size ?: 0 <= 10) {
+                                topic?.enabled = b
+                                if (b)
+                                    Toast.makeText(it, getString(R.string.toast_enabled), Toast.LENGTH_SHORT).show()
+                                else
+                                    Toast.makeText(it, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
+                            } else if (b) {
+                                Toast.makeText(it, getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show()
+                                userSelect = false
+                                switch.isChecked = false
+                            } else if (!b) {
+                                topic?.enabled = false
+                                Toast.makeText(it, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                     activity?.let { a ->

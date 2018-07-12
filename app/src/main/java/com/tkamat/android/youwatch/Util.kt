@@ -8,18 +8,14 @@ import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.support.v4.app.NotificationCompat
-
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
-import android.content.Context.NOTIFICATION_SERVICE
 import com.tkamat.android.youwatch.TopicService.Companion.CHANNEL_ID
+import java.text.SimpleDateFormat
+import java.util.*
 
 object Util {
     private fun createID(): Int {
