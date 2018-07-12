@@ -18,9 +18,9 @@ class TopicList private constructor(context: Context) {
             val topics = ArrayList<Topic>()
             val cursor = queryTopics(
                     null, null)
-            cursor.use {
-                it?.moveToFirst()
-                while (it?.isAfterLast == false) {
+            cursor?.use {
+                it.moveToFirst()
+                while (!it.isAfterLast) {
                     topics.add(it.topic)
                     it.moveToNext()
                 }
@@ -76,12 +76,17 @@ class TopicList private constructor(context: Context) {
     }
 
     private fun queryTopics(whereClause: String?, whereArgs: Array<String>?): TopicCursorWrapper? {
-        val cursor = database?.query(TopicTable.NAME, null,
-                whereClause,
-                whereArgs, null, null, null)
-        cursor?.let {
-            return TopicCursorWrapper(it)
-        } ?: return null
+        try {
+            val cursor = database?.query(TopicTable.NAME, null,
+                    whereClause,
+                    whereArgs, null, null, null)
+            cursor?.let {
+                return TopicCursorWrapper(it)
+            } ?: return null
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     companion object {

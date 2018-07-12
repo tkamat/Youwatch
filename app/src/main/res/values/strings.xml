@@ -27,10 +27,14 @@
     <string name="limit_reached_toast">Topic limit reached</string>
     <string name="update_alert_title">What\'s New</string>
     <string name="update_alert_text">
+        <font size="18">1.9</font> \n\n
+        - Added some instructional text on first screen.\n
+        - Other small tweaks and bug fixes.\n
         <font size="18">1.8</font> \n\n
         - Added \"What\'s New\" screen for new updates.\n
         - Displays a list of old video matches for each topic.\n
         - Other small tweaks and bug fixes.
     </string>
     <string name="notified_video_list_header">Previous Notifications:</string>
+    <string name="empty_screen_hint">Tap \"+\" to get started</string>
 </resources>

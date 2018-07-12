@@ -29,6 +29,7 @@ class TopicRecyclerFragment : Fragment() {
     private lateinit var constraintLayout: ConstraintLayout
     private lateinit var topicRecyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
+    private lateinit var emptyScreenHint: TextView
     private var topicAdapter: TopicAdapter? = null
 
     private val isFirstTime: Boolean
@@ -97,8 +98,8 @@ class TopicRecyclerFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.fragment_topic_list, container, false)
-        constraintLayout = v.findViewById<View>(R.id.constraint_layout) as ConstraintLayout
-        fab = v.findViewById<View>(R.id.add_button) as FloatingActionButton
+        constraintLayout = v.findViewById(R.id.constraint_layout) as ConstraintLayout
+        fab = v.findViewById(R.id.add_button) as FloatingActionButton
         fab.setOnClickListener {
             activity?.let {
                if ((TopicList[it]?.enabledTopics?.size ?: 0) <= 10) {
@@ -115,7 +116,6 @@ class TopicRecyclerFragment : Fragment() {
         //        mAdView.setAdListener(new AdListener() {
         //            @Override
         //            public void onAdFailedToLoad(int i) {
-        //                mAdView.setVisibility(View.GONE);
         //                super.onAdFailedToLoad(i);
         //            }
         //
@@ -125,7 +125,7 @@ class TopicRecyclerFragment : Fragment() {
         //                super.onAdLoaded();
         //            }
         //        });
-        topicRecyclerView = v.findViewById<View>(R.id.topic_recycler_view) as RecyclerView
+        topicRecyclerView = v.findViewById(R.id.topic_recycler_view) as RecyclerView
         topicRecyclerView.layoutManager = LinearLayoutManager(activity)
         topicRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
@@ -142,6 +142,7 @@ class TopicRecyclerFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
             }
         })
+        emptyScreenHint = v.findViewById(R.id.emptyScreenHint) as TextView
 
         updateUI()
         if (isFirstTime) {
@@ -180,6 +181,14 @@ class TopicRecyclerFragment : Fragment() {
             topics?.let {
                 topicAdapter?.setTopics(it)
                 topicAdapter?.notifyDataSetChanged()
+            }
+        }
+
+        activity?.let {
+            if (TopicList.get(it)?.topics?.size == 0) {
+                emptyScreenHint.visibility = View.VISIBLE
+            } else {
+                emptyScreenHint.visibility = View.GONE
             }
         }
     }
