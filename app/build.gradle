@@ -41,6 +41,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:15.0.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.getbase:floatingactionbutton:1.10.1'
 }
 
 
@@ -48,3 +49,4 @@ apply plugin: 'com.google.gms.google-services'
 repositories {
     mavenCentral()
 }
+apply plugin: 'kotlin-android-extensions'

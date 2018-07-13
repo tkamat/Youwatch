@@ -24,11 +24,14 @@ import java.util.UUID
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
+import com.getbase.floatingactionbutton.FloatingActionsMenu
 
 class TopicRecyclerFragment : Fragment() {
     private lateinit var constraintLayout: ConstraintLayout
     private lateinit var topicRecyclerView: RecyclerView
-    private lateinit var fab: FloatingActionButton
+    private lateinit var fam: FloatingActionsMenu
+    private lateinit var youtubeFAB: com.getbase.floatingactionbutton.FloatingActionButton
+    private lateinit var twitterFAB: com.getbase.floatingactionbutton.FloatingActionButton
     private lateinit var emptyScreenHint: TextView
     private var topicAdapter: TopicAdapter? = null
 
@@ -99,15 +102,23 @@ class TopicRecyclerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.fragment_topic_list, container, false)
         constraintLayout = v.findViewById(R.id.constraint_layout) as ConstraintLayout
-        fab = v.findViewById(R.id.add_button) as FloatingActionButton
-        fab.setOnClickListener {
+        fam = v.findViewById(R.id.add_button) as FloatingActionsMenu
+        youtubeFAB = v.findViewById(R.id.youtubeButton) as com.getbase.floatingactionbutton.FloatingActionButton
+        twitterFAB = v.findViewById(R.id.twitterButton) as com.getbase.floatingactionbutton.FloatingActionButton
+        youtubeFAB.setOnClickListener {
             activity?.let {
                if ((TopicList[it]?.enabledTopics?.size ?: 0) <= 10) {
-                    val intent = TopicPickerActivity.newIntent(it, UUID.randomUUID())
+                    val intent = TopicPickerActivity.newIntent(it, UUID.randomUUID(), "youtube")
                     startActivity(intent)
                 } else {
                     Toast.makeText(it, getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show()
                 }
+            }
+        }
+        twitterFAB.setOnClickListener {
+            activity?.let {
+                val intent = TopicPickerActivity.newIntent(it, UUID.randomUUID(), "twitter")
+                startActivity(intent)
             }
         }
         //        mAdView = (AdView) v.findViewById(R.id.adView);
@@ -129,14 +140,14 @@ class TopicRecyclerFragment : Fragment() {
         topicRecyclerView.layoutManager = LinearLayoutManager(activity)
         topicRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                if (dy > 0 || dy < 0 && fab.isShown) {
-                    fab.hide()
+                if (dy > 0 || dy < 0 && fam.isShown) {
+//                    fam.visibility = View.VISIBLE
                 }
             }
 
             override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    fab.show()
+//                    fam.visibility = View.GONE
                 }
 
                 super.onScrollStateChanged(recyclerView, newState)
@@ -195,12 +206,12 @@ class TopicRecyclerFragment : Fragment() {
 
     private fun hideViews() {
         topicRecyclerView.visibility = View.GONE
-        fab.visibility = View.GONE
+        fam.visibility = View.GONE
     }
 
     private fun showViews() {
         topicRecyclerView.visibility = View.VISIBLE
-        fab.visibility = View.VISIBLE
+        fam.visibility = View.VISIBLE
     }
 
     private fun showHelpDialog() {
@@ -287,7 +298,7 @@ class TopicRecyclerFragment : Fragment() {
                 hideViews()
                 activity?.let { a ->
                     topic?.let { t ->
-                        val intent = TopicPickerActivity.newIntent(a, t.id)
+                        val intent = TopicPickerActivity.newIntent(a, t.id, "youtube")
                         startActivity(intent)
                     }
                 }

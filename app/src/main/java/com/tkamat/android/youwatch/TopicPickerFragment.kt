@@ -264,17 +264,6 @@ class TopicPickerFragment : Fragment() {
         }
     }
 
-    private fun setText(text: TextView, value: String) {
-        activity?.runOnUiThread { text.text = value }
-    }
-
-    private fun disableBarAndEnableText(bar: ProgressBar, text: TextView) {
-        activity?.runOnUiThread {
-            bar.visibility = View.GONE
-            text.visibility = View.VISIBLE
-        }
-    }
-
     inner class VideoHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_notified_video, parent, false)) {
         private val videoTitleText: TextView = itemView.findViewById<View>(R.id.video_title) as TextView
         private val videoCreatorText: TextView = itemView.findViewById<View>(R.id.channel_name) as TextView
@@ -327,16 +316,14 @@ class TopicPickerFragment : Fragment() {
 
 
     companion object {
-
         private const val ARG_TOPIC_ID = "arg_topic_id"
 
         fun newInstance(topicID: UUID): TopicPickerFragment {
-            val fragment = TopicPickerFragment()
-            val args = Bundle()
-            args.putSerializable(ARG_TOPIC_ID, topicID)
-            fragment.arguments = args
-            return fragment
+            return TopicPickerFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_TOPIC_ID, topicID)
+                }
+            }
         }
     }
-
 }
