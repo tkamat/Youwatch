@@ -25,8 +25,11 @@ import android.content.Context.CONNECTIVITY_SERVICE
 import kotlin.collections.ArrayList
 
 
-class TopicPickerFragment : Fragment() {
-    private lateinit var topic: Topic
+class YoutubeTopicFragment : Fragment() {
+
+
+
+    private lateinit var topic: YoutubeTopic
     private lateinit var topicText: EditText
     private lateinit var viewSpinner: Spinner
     private lateinit var matchesPerMonthText: TextView
@@ -34,12 +37,8 @@ class TopicPickerFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var videoAdapter: VideoAdapter
 
-    private var topVideoID: String? = null
-    private var topVideoTitle: String? = null
-    private var topVideoBody: String? = null
     //    private InterstitialAd mInterstitialAd;
 
-    private var timer: Timer? = null
 
     private val isNetworkAvailableAndConnected: Boolean
         get() {
@@ -55,14 +54,15 @@ class TopicPickerFragment : Fragment() {
         setHasOptionsMenu(true)
         activity?.let { act ->
             arguments?.let { arg ->
-                topic = TopicList[act]?.getTopic(arg.getSerializable(ARG_TOPIC_ID) as UUID) ?: Topic("", 100000)
+                topic = TopicList.getInstance(act)?.getTopic(arg.getSerializable(ARG_TOPIC_ID) as UUID) as? YoutubeTopic
+                        ?: YoutubeTopic("", 100000)
             }
-        } ?: Topic("", 100000)
+        } ?: YoutubeTopic("", 100000)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.fragment_topic_picker, container, false)
+        val v = inflater.inflate(R.layout.fragment_youtube_topic, container, false)
         retainInstance = true
 
         progressBar = v.findViewById<View>(R.id.matches_bar) as ProgressBar
@@ -71,6 +71,7 @@ class TopicPickerFragment : Fragment() {
         topicText = v.findViewById<View>(R.id.text_topic) as EditText
         topicText.setText(topic.topicName)
         topicText.addTextChangedListener(object : TextWatcher {
+            var timer: Timer? = null
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
                 matchesPerMonthText.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
@@ -78,10 +79,8 @@ class TopicPickerFragment : Fragment() {
 
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
                 topic.topicName = charSequence.toString()
-                topic.topicSearcher = TopicSearcher(topic)
-                timer?.let {
-                    it.cancel()
-                }
+                topic.youtubeTopicSearcher = YoutubeTopicSearcher(topic)
+                timer?.cancel()
             }
 
             override fun afterTextChanged(editable: Editable) {
@@ -154,7 +153,7 @@ class TopicPickerFragment : Fragment() {
                             viewSpinner.setSelection(adapter?.getPosition(number) ?: 0)
                             try {
                                 topic.minViews = NumberFormat.getNumberInstance(Locale.US).parse(number).toInt()
-                                topic.topicSearcher = TopicSearcher(topic)
+                                topic.youtubeTopicSearcher = YoutubeTopicSearcher(topic)
                             } catch (e: ParseException) {
                                 e.printStackTrace()
                             } catch (e: NumberFormatException) {
@@ -167,7 +166,7 @@ class TopicPickerFragment : Fragment() {
                     } else {
                         try {
                             topic.minViews = NumberFormat.getNumberInstance(Locale.US).parse(adapterView.getItemAtPosition(i).toString()).toInt()
-                            topic.topicSearcher = TopicSearcher(topic)
+                            topic.youtubeTopicSearcher = YoutubeTopicSearcher(topic)
                         } catch (e: ParseException) {
                             e.printStackTrace()
                         }
@@ -198,11 +197,21 @@ class TopicPickerFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(activity)
         videoAdapter = VideoAdapter()
         recyclerView.adapter = videoAdapter
-        topic.topicSearcher?.notifiedVideoIDs = topic.notifiedVideos
-        topic.topicSearcher?.searchForVideosFromPreviouslyNotified(videoAdapter)
-        //        mInterstitialAd = new InterstitialAd(getActivity());
-        //        mInterstitialAd.setAdUnitId(getString(R.string.interstitial_ad_unit_id));
-        //        mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("BA648A93396B1115DEF0054041E7E8EB").build());
+        topic.youtubeTopicSearcher?.notifiedVideoIDs = topic.previousNotifications
+        topic.youtubeTopicSearcher?.searchNotified(object: TopicCallback {
+            override fun onFinished() {
+                videoAdapter.apply {
+                    videoIDs = topic.youtubeTopicSearcher?.notifiedVideoIDs ?: ArrayList()
+                    videoTitles = topic.youtubeTopicSearcher?.notifiedVideoTitles ?: ArrayList()
+                    videoCreators = topic.youtubeTopicSearcher?.notifiedVideoCreators ?: ArrayList()
+                    notifyDataSetChanged()
+                }
+            }
+
+            override fun onStarted() {
+            }
+
+        })
         return v
     }
 
@@ -219,24 +228,27 @@ class TopicPickerFragment : Fragment() {
                     return true
                 }
                 activity?.let {
-                    if (TopicList[it]?.getTopic(topic.id) == null) {
-                        if (!topic.topVideoNotificationShown && (topic.topicSearcher?.videoResults?.size ?: 0) > 0) {
-                            topVideoID = topic.topicSearcher?.videoIDs?.get(0)
-                            topVideoTitle = "New from " + topic.topicSearcher?.videoResults?.get(0)?.snippet?.channelTitle
-                            topVideoBody = topic.topicSearcher?.videoResults?.get(0)?.snippet?.title
+                    var topVideoID: String? = null
+                    var topVideoTitle: String? = null
+                    var topVideoBody: String? = null
+                    if (TopicList.getInstance(it)?.getTopic(topic.id) == null) {
+                        if (!topic.firstNotificationShown && (topic.youtubeTopicSearcher?.videoResults?.size ?: 0) > 0) {
+                            topVideoID = topic.youtubeTopicSearcher?.videoIds?.get(0)
+                            topVideoTitle = "New from " + topic.youtubeTopicSearcher?.videoResults?.get(0)?.snippet?.channelTitle
+                            topVideoBody = topic.youtubeTopicSearcher?.videoResults?.get(0)?.snippet?.title
                         }
-                        if (topVideoID != null && !topic.topVideoNotificationShown) {
+                        if (topVideoID != null && !topic.firstNotificationShown) {
                             activity?.let {
-                                Util.createNotification(topVideoID ?: "", topVideoTitle ?: "", topVideoBody ?: "", it)
+                                Util.createYoutubeNotification(topVideoID ?: "", topVideoTitle ?: "", topVideoBody ?: "", it)
                             }
-                            topic.topVideoNotificationShown = true
-                            topVideoID?.let {
-                                topic.notifiedVideos.add(it)
+                            topic.firstNotificationShown = true
+                            topVideoID.let {
+                                topic.previousNotifications.add(it)
                             }
                         }
-                        TopicList[it]?.addTopic(topic)
+                        TopicList.getInstance(it)?.addTopic(topic)
                     } else {
-                        TopicList[it]?.updateTopic(topic)
+                        TopicList.getInstance(it)?.updateTopic(topic)
                     }
                     it.onBackPressed()
                 }
@@ -244,8 +256,8 @@ class TopicPickerFragment : Fragment() {
             }
             R.id.delete_button -> {
                 activity?.let {
-                    if (TopicList[it]?.getTopic(topic.id) != null) {
-                        TopicList[it]?.deleteTopic(topic.id)
+                    if (TopicList.getInstance(it)?.getTopic(topic.id) != null) {
+                        TopicList.getInstance(it)?.deleteTopic(topic.id)
                     }
                     it.onBackPressed()
                 }
@@ -257,9 +269,26 @@ class TopicPickerFragment : Fragment() {
 
     private fun updateMatchesAndTopVideo() {
         if (isNetworkAvailableAndConnected) {
-            val searcher = topic.topicSearcher
+            val searcher = topic.youtubeTopicSearcher
             activity?.let {
-                searcher?.searchForIDs(matchesPerMonthText, progressBar)?.searchForVideos(matchesPerMonthText, progressBar, it)
+                searcher?.search(object: TopicCallback {
+                    override fun onFinished() {
+                        progressBar.visibility = View.GONE
+                        matchesPerMonthText.visibility = View.VISIBLE
+                        val numberOfMatches = topic.youtubeTopicSearcher?.numberOfMatches
+                        val text = if (numberOfMatches == "50+") {
+                            context?.getString(R.string.text_videos_past_month, numberOfMatches) + " " + context?.getString(R.string.consider_changing)
+                        } else {
+                            context?.getString(R.string.text_videos_past_month, numberOfMatches)
+                        }
+                        matchesPerMonthText.text = text
+                    }
+
+                    override fun onStarted() {
+                        progressBar.visibility = View.VISIBLE
+                        matchesPerMonthText.visibility = View.GONE
+                    }
+                })
             }
         }
     }
@@ -314,12 +343,11 @@ class TopicPickerFragment : Fragment() {
         }
     }
 
-
     companion object {
         private const val ARG_TOPIC_ID = "arg_topic_id"
 
-        fun newInstance(topicID: UUID): TopicPickerFragment {
-            return TopicPickerFragment().apply {
+        fun newInstance(topicID: UUID): YoutubeTopicFragment {
+            return YoutubeTopicFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_TOPIC_ID, topicID)
                 }

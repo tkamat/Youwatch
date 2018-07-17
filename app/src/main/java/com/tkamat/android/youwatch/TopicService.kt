@@ -34,29 +34,68 @@ class TopicService : JobService() {
             Util.scheduleJob(this)
             return false
         }
-        val topics = TopicList[this]!!.topics
+        val topics = TopicList.getInstance(this)!!.topics
         for (t in topics) {
             if (t.enabled) {
-                val oldVideoIDs = t.topicSearcher?.videoIDs
-                t.topicSearcher = TopicSearcher(t)
-                t.topicSearcher?.searchForIDsService()?.searchForVideosService()
-                val newVideoIDs = t.topicSearcher?.videoIDs
-                val newVideoResults = t.topicSearcher?.videoResults
-                val uniqueVideoIDs = ArrayList<String>()
-                for (i in (newVideoIDs?.indices ?: return false)) {
-                    if (i < (newVideoResults?.size ?: return false) &&
-                            !(oldVideoIDs?.contains(newVideoIDs[i]) ?: return false) &&
-                            !t.notifiedVideos.contains(newVideoIDs[i])) {
-                        uniqueVideoIDs.add(newVideoIDs[i])
-                        val title = "New From " + newVideoResults[i].snippet.channelTitle
-                        val body = newVideoResults[i].snippet.title
-                        t.notifiedVideos.add(newVideoIDs[i])
-                        TopicList[this@TopicService]?.updateTopic(t)
-                        Util.createNotification(newVideoIDs[i], title, body, this@TopicService)
+                when (t) {
+                    is YoutubeTopic -> {
+                        val oldVideoIDs = t.youtubeTopicSearcher?.videoIds
+                        t.youtubeTopicSearcher = YoutubeTopicSearcher(t)
+                        t.youtubeTopicSearcher?.search(object : TopicCallback {
+                            override fun onFinished() {
+                                val newVideoIDs = t.youtubeTopicSearcher?.videoIds
+                                val newVideoResults = t.youtubeTopicSearcher?.videoResults
+                                val uniqueVideoIDs = ArrayList<String>()
+                                for (i in (newVideoIDs?.indices ?: return)) {
+                                    if (i < (newVideoResults?.size ?: return) &&
+                                            !(oldVideoIDs?.contains(newVideoIDs[i]) ?: return) &&
+                                            !t.previousNotifications.contains(newVideoIDs[i])) {
+                                        uniqueVideoIDs.add(newVideoIDs[i])
+                                        val title = "New Youtube Video from " + newVideoResults[i].snippet.channelTitle
+                                        val body = newVideoResults[i].snippet.title
+                                        t.previousNotifications.add(newVideoIDs[i])
+                                        TopicList.getInstance(this@TopicService)?.updateTopic(t)
+                                        Util.createYoutubeNotification(newVideoIDs[i], title, body, this@TopicService)
+                                    }
+                                }
+                                Log.i(TAG, "YoutubeTopic refreshed")
+                                Log.i(TAG, uniqueVideoIDs.toString())
+                            }
+
+                            override fun onStarted() {
+                            }
+                        })
+                    }
+                    is TwitterTopic -> {
+                        val oldTweetIds = t.twitterTopicSearcher?.tweetIds
+                        t.twitterTopicSearcher = TwitterTopicSearcher(t)
+                        t.twitterTopicSearcher?.search(this, object: TopicCallback {
+                            override fun onFinished() {
+                                val newTweetIds = t.twitterTopicSearcher?.tweetIds
+                                val newTweetResults = t.twitterTopicSearcher?.tweetResults
+                                val uniqueTweetIds = ArrayList<String>()
+                                for (i in (newTweetIds?.indices ?: return)) {
+                                    if (i < (newTweetResults?.size ?: return) &&
+                                            !(oldTweetIds?.contains(newTweetIds[i]) ?: return) &&
+                                            !t.previousNotifications.contains(newTweetIds[i])) {
+                                        uniqueTweetIds.add(newTweetIds[i])
+                                        val title = "New Tweet by " + newTweetResults[i].user.screenName
+                                        val body = newTweetResults[i].text
+                                        t.previousNotifications.add(newTweetIds[i])
+                                        TopicList.getInstance(this@TopicService)?.updateTopic(t)
+                                        Util.createYoutubeNotification(newTweetIds[i], title, body, this@TopicService)
+                                    }
+                                }
+                                Log.i(TAG, "YoutubeTopic refreshed")
+                                Log.i(TAG, uniqueTweetIds.toString())
+                            }
+
+                            override fun onStarted() {
+                            }
+
+                        })
                     }
                 }
-                Log.i(TAG, "Topic refreshed")
-                Log.i(TAG, uniqueVideoIDs.toString())
             }
         }
         Util.scheduleJob(this)
@@ -67,15 +106,13 @@ class TopicService : JobService() {
         return true
     }
 
-    override fun onDestroy() {}
-
     companion object {
         const val TAG = "topic_service"
-        const val CHANNEL_ID = "topic_channel"
+        const val YOUTUBE_CHANNEL_ID = "youtube_topic_channel"
+        const val TWITTER_CHANNEL_ID = "twitter_topic_channel"
 
         fun newIntent(context: Context): Intent {
             return Intent(context, TopicService::class.java)
         }
     }
-
 }

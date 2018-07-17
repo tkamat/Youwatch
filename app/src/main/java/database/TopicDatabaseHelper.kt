@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 
 import database.TopicDatabaseSchema.*
 
-private const val VERSION = 10
+private const val VERSION = 12
 private const val DATABASE_NAME = "topicDatabase.db"
 
 class TopicDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, VERSION) {
@@ -24,20 +24,23 @@ class TopicDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     override fun onCreate(sqLiteDatabase: SQLiteDatabase) {
-        sqLiteDatabase.execSQL("create table " + TopicTable.NAME + "(" +
+        sqLiteDatabase.execSQL("create table ${TopicTable.NAME} (" +
                 " _id integer primary key autoincrement, " +
+                TopicTable.Cols.TOPIC_TYPE + ", " +
                 TopicTable.Cols.UUID + ", " +
                 TopicTable.Cols.TOPIC + ", " +
                 TopicTable.Cols.VIEWS + ", " +
                 TopicTable.Cols.ENABLED + ", " +
-                TopicTable.Cols.TOPIC_SEARCHER + ", " +
-                TopicTable.Cols.NOTIFIED_VIDEOS + ", " +
-                TopicTable.Cols.TOP_VIDEO_NOTIFICATION_SHOWN + ")"
+                TopicTable.Cols.TOPIC_IDS + ", " +
+                TopicTable.Cols.PREVIOUS_NOTIFICATIONS + ", " +
+                TopicTable.Cols.FIRST_NOTIFICATION_SHOWN + ", " +
+                TopicTable.Cols.RETWEETS + ", " +
+                TopicTable.Cols.TWEET_LIKES + ")"
         )
     }
 
     override fun onUpgrade(sqLiteDatabase: SQLiteDatabase, i: Int, i1: Int) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TopicTable.NAME)
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS ${TopicTable.NAME}")
         onCreate(sqLiteDatabase)
     }
 

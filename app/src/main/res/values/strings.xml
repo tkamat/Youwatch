@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Youwatch</string>
-    <string name="hint_topic">Topic or Keyword</string>
+    <string name="hint_topic_youtube">Topic or Keyword</string>
+    <string name="hint_topic_twitter">Topic, Keyword, or Hashtag</string>
     <string name="hint_views">Minimum Views:</string>
+    <string name="hint_likes">Minimum Likes:</string>
+    <string name="hint_retweets">Minimum Retweets:</string>
     <string name="text_videos_past_month">%1$s matches last month.</string>
     <string name="save_button">Save</string>
     <string name="cancel_button">Cancel</string>
@@ -27,18 +30,18 @@
     <string name="limit_reached_toast">Topic limit reached</string>
     <string name="update_alert_title">What\'s New</string>
     <string name="update_alert_text">
-        <font size="18">1.9</font> \n\n
+        <font size="18">1.9</font> \n
         - Added some instructional text on first screen.\n
-        - Other small tweaks and bug fixes.\n
-        <font size="18">1.8</font> \n\n
+        - Other small tweaks and bug fixes.\n\n
+        <font size="18">1.8</font> \n
         - Added \"What\'s New\" screen for new updates.\n
         - Displays a list of old video matches for each topic.\n
         - Other small tweaks and bug fixes.
     </string>
     <string name="notified_video_list_header">Previous Notifications:</string>
     <string name="empty_screen_hint">Tap \"+\" to get started</string>
-    <string name="youtube">YouTube</string>
-    <string name="twitter">Twitter</string>
+    <string name="youtube">YouTube topic</string>
+    <string name="twitter">Twitter topic</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

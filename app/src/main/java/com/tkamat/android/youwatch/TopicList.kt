@@ -56,7 +56,7 @@ class TopicList private constructor(context: Context) {
         } finally {
             cursor?.close()
         }
-        return Topic("", 10000)
+        return null
     }
 
     fun addTopic(topic: Topic) {
@@ -92,7 +92,7 @@ class TopicList private constructor(context: Context) {
     companion object {
         @Volatile private var topicList: TopicList? = null
 
-        operator fun get(context: Context): TopicList? {
+        fun getInstance(context: Context): TopicList? {
             if (topicList == null) {
                 synchronized(TopicList::class.java) {
                     if (topicList == null) {
@@ -109,22 +109,31 @@ class TopicList private constructor(context: Context) {
 
         private fun getContentValues(topic: Topic): ContentValues {
             val values = ContentValues()
-            values.put(TopicTable.Cols.UUID, topic.id.toString())
+            values.put(TopicTable.Cols.TOPIC_TYPE, topic.topicType)
             values.put(TopicTable.Cols.TOPIC, topic.topicName)
-            values.put(TopicTable.Cols.VIEWS, topic.minViews)
+            values.put(TopicTable.Cols.UUID, topic.id.toString())
             values.put(TopicTable.Cols.ENABLED, if (topic.enabled) 1 else 0)
-            values.put(TopicTable.Cols.TOP_VIDEO_NOTIFICATION_SHOWN, if (topic.topVideoNotificationShown) 1 else 0)
+            values.put(TopicTable.Cols.FIRST_NOTIFICATION_SHOWN, if (topic.firstNotificationShown) 1 else 0)
 
             val gson = Gson()
-
-            val videoIDs = topic.topicSearcher?.videoIDs
-            val inputString1 = gson.toJson(videoIDs)
-            values.put(TopicTable.Cols.TOPIC_SEARCHER, inputString1)
-
-            val notifiedVideos = topic.notifiedVideos
-            val inputString2 = gson.toJson(notifiedVideos)
-            values.put(TopicTable.Cols.NOTIFIED_VIDEOS, inputString2)
-
+            val previousNotifications = topic.previousNotifications
+            val inputString2 = gson.toJson(previousNotifications)
+            values.put(TopicTable.Cols.PREVIOUS_NOTIFICATIONS, inputString2)
+            when (topic) {
+                is YoutubeTopic -> {
+                    values.put(TopicTable.Cols.VIEWS, topic.minViews)
+                    val videoIDs = topic.youtubeTopicSearcher?.videoIds
+                    val inputString1 = gson.toJson(videoIDs)
+                    values.put(TopicTable.Cols.TOPIC_IDS, inputString1)
+                }
+                is TwitterTopic -> {
+                    values.put(TopicTable.Cols.RETWEETS, topic.minRetweets)
+                    values.put(TopicTable.Cols.TWEET_LIKES, topic.minLikes)
+                    val tweetIds = topic.twitterTopicSearcher?.tweetIds
+                    val inputString1 = gson.toJson(tweetIds)
+                    values.put(TopicTable.Cols.TOPIC_IDS, inputString1)
+                }
+            }
             return values
         }
     }

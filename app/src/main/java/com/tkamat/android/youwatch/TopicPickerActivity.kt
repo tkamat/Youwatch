@@ -7,9 +7,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import java.util.*
 
-const val EXTRA_TOPIC_ID = "extra_topic_ID"
-const val EXTRA_TOPIC_TYPE = "extra_topic_type"
-
 class TopicPickerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,11 +19,11 @@ class TopicPickerActivity : AppCompatActivity() {
         fragment ?: run {
             when (intent.getSerializableExtra(EXTRA_TOPIC_TYPE) as String) {
                 "youtube" -> {
-                    fragment = TopicPickerFragment.newInstance(intent.getSerializableExtra(EXTRA_TOPIC_ID) as UUID)
+                    fragment = YoutubeTopicFragment.newInstance(intent.getSerializableExtra(EXTRA_TOPIC_ID) as UUID)
                     fm.beginTransaction().add(R.id.fragment_container, fragment).commit()
                 }
                 "twitter" -> {
-                    fragment = TwitterTopicFragment.newInstance("Hello World!")
+                    fragment = TwitterTopicFragment.newInstance(intent.getSerializableExtra(EXTRA_TOPIC_ID) as UUID)
                     fm.beginTransaction().add(R.id.fragment_container, fragment).commit()
                 }
                 else -> throw IllegalArgumentException("Topic type must be youtube or twitter")
@@ -35,6 +32,10 @@ class TopicPickerActivity : AppCompatActivity() {
     }
 
     companion object {
+
+        const val EXTRA_TOPIC_ID = "extra_topic_ID"
+        const val EXTRA_TOPIC_TYPE = "extra_topic_type"
+
 
         fun newIntent(packageContext: Context, topicID: UUID, topicType: String): Intent {
             val intent = Intent(packageContext, TopicPickerActivity::class.java)

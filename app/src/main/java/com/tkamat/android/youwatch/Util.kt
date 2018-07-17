@@ -13,7 +13,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.support.v4.app.NotificationCompat
-import com.tkamat.android.youwatch.TopicService.Companion.CHANNEL_ID
+import com.tkamat.android.youwatch.TopicService.Companion.TWITTER_CHANNEL_ID
+import com.tkamat.android.youwatch.TopicService.Companion.YOUTUBE_CHANNEL_ID
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,16 +46,46 @@ object Util {
         jobScheduler.schedule(builder.build())
     }
 
-    fun createNotification(videoID: String, title: String, body: String, context: Context) {
+    fun createYoutubeNotification(videoID: String, title: String, body: String, context: Context) {
         val notificationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=$videoID"))
         val contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val id = createID()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "Topic Watcher Service", NotificationManager.IMPORTANCE_DEFAULT)
-            channel.description = "test"
+            val channel = NotificationChannel(YOUTUBE_CHANNEL_ID, "Youwatch Youtube Notifications", NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description = "Youtube notifications for Youwatch topics"
             notificationManager.createNotificationChannel(channel)
-            val notification = Notification.Builder(context, CHANNEL_ID)
+            val notification = Notification.Builder(context, YOUTUBE_CHANNEL_ID)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(body)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .build()
+            notificationManager.notify(id, notification)
+        } else {
+            val notification = NotificationCompat.Builder(context)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(body)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .build()
+            notificationManager.notify(id, notification)
+        }
+    }
+
+    fun createTwitterNotification(tweetId: String, title: String, body: String, context: Context) {
+        val notificationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/anyuser/status/$tweetId"))
+        val contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val id = createID()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(TWITTER_CHANNEL_ID, "Youwatch Twitter Notifications", NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description = "Twitter notifications for Youwatch topics"
+            notificationManager.createNotificationChannel(channel)
+            val notification = Notification.Builder(context, TWITTER_CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(title)
                     .setContentText(body)
