@@ -1,5 +1,6 @@
 package com.tkamat.android.youwatch
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.net.ConnectivityManager
 import android.os.Bundle
@@ -8,11 +9,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.text.Editable
-import android.text.Html
-import android.text.InputFilter
-import android.text.InputType
-import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.*
@@ -22,6 +18,8 @@ import java.text.ParseException
 import java.util.*
 
 import android.content.Context.CONNECTIVITY_SERVICE
+import android.os.Build
+import android.text.*
 import kotlin.collections.ArrayList
 
 
@@ -37,6 +35,7 @@ class YoutubeTopicFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var videoAdapter: VideoAdapter
 
+    var timer: Timer? = null
     //    private InterstitialAd mInterstitialAd;
 
 
@@ -71,7 +70,6 @@ class YoutubeTopicFragment : Fragment() {
         topicText = v.findViewById<View>(R.id.text_topic) as EditText
         topicText.setText(topic.topicName)
         topicText.addTextChangedListener(object : TextWatcher {
-            var timer: Timer? = null
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
                 matchesPerMonthText.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
@@ -190,8 +188,10 @@ class YoutubeTopicFragment : Fragment() {
         viewSpinner.setOnTouchListener(listener)
 
         matchesPerMonthText = v.findViewById<View>(R.id.matches_per_month) as TextView
-        if (topicText.text.toString() != "")
+
+        if (topicText.text.toString() != "") {
             updateMatchesAndTopVideo()
+        }
 
         recyclerView = v.findViewById<View>(R.id.notified_recycler_view) as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity)
@@ -293,22 +293,21 @@ class YoutubeTopicFragment : Fragment() {
         }
     }
 
-    inner class VideoHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_notified_video, parent, false)) {
-        private val videoTitleText: TextView = itemView.findViewById<View>(R.id.video_title) as TextView
-        private val videoCreatorText: TextView = itemView.findViewById<View>(R.id.channel_name) as TextView
+    inner class VideoHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_notified_topic, parent, false)) {
+        private val videoTitleText: TextView = itemView.findViewById<View>(R.id.topic_text) as TextView
+        private val videoCreatorText: TextView = itemView.findViewById<View>(R.id.topic_poster) as TextView
 
         init {
             videoTitleText.movementMethod = LinkMovementMethod.getInstance()
             videoTitleText.isClickable = true
         }
 
+        @SuppressLint("SetTextI18n")
         fun bind(videoID: String, videoTitle: String, videoCreator: String) {
             videoTitleText.text = Html.fromHtml(
-                    "<a href=\"https://www.youtube.com/watch?v=" +
-                            videoID +
-                            "\">" +
-                            videoTitle +
-                            "</a>")
+                    "<a href=\"https://www.youtube.com/watch?v=$videoID\">" +
+                    videoTitle +
+                    "</a>")
             videoCreatorText.text = "From $videoCreator"
         }
     }

@@ -79,11 +79,11 @@ class TopicService : JobService() {
                                             !(oldTweetIds?.contains(newTweetIds[i]) ?: return) &&
                                             !t.previousNotifications.contains(newTweetIds[i])) {
                                         uniqueTweetIds.add(newTweetIds[i])
-                                        val title = "New Tweet by " + newTweetResults[i].user.screenName
+                                        val title = "New Tweet by @" + newTweetResults[i].user.screenName
                                         val body = newTweetResults[i].text
                                         t.previousNotifications.add(newTweetIds[i])
                                         TopicList.getInstance(this@TopicService)?.updateTopic(t)
-                                        Util.createYoutubeNotification(newTweetIds[i], title, body, this@TopicService)
+                                        Util.createTwitterNotification(newTweetIds[i], title, body, this@TopicService)
                                     }
                                 }
                                 Log.i(TAG, "YoutubeTopic refreshed")

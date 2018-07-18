@@ -128,6 +128,8 @@ class YoutubeTopicSearcher(topic: YoutubeTopic) {
         }
 
         override fun onPostExecute(aVoid: Void?) {
+            notifiedVideoTitles?.clear()
+            notifiedVideoCreators?.clear()
             notifiedVideoList?.let {
                 for (video in it) {
                     notifiedVideoTitles?.add(video.snippet.title)

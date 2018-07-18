@@ -1,22 +1,26 @@
 package com.tkamat.android.youwatch
 
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
-import android.text.Editable
-import android.text.InputFilter
-import android.text.InputType
-import android.text.TextWatcher
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.text.*
+import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.*
+import kotlinx.android.synthetic.main.list_item_notified_topic.*
 import java.text.NumberFormat
 import java.text.ParseException
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -37,7 +41,10 @@ class TwitterTopicFragment : Fragment() {
     private lateinit var retweetSpinner: Spinner
     private lateinit var matchesPerWeekText: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var tweetAdapter: TweetAdapter
 
+    var timer: Timer? = null
     private val isNetworkAvailableAndConnected: Boolean
         get() {
             activity?.let {
@@ -68,14 +75,30 @@ class TwitterTopicFragment : Fragment() {
         progressBar.visibility = View.GONE
 
         matchesPerWeekText = v.findViewById(R.id.matches_per_week)
-        if (matchesPerWeekText.text.isNotBlank()) {
-            updateMatchesAndTopTweet()
+
+        recyclerView = v.findViewById(R.id.notified_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        tweetAdapter = TweetAdapter()
+        recyclerView.adapter = tweetAdapter
+        topic.twitterTopicSearcher?.notifiedTweetIds = topic.previousNotifications
+        activity?.let {
+            topic.twitterTopicSearcher?.searchNotified(it, object: TopicCallback {
+                override fun onFinished() {
+                    tweetAdapter.apply {
+                        tweetIds = topic.twitterTopicSearcher?.notifiedTweetIds ?: ArrayList()
+                        tweetTexts = topic.twitterTopicSearcher?.notifiedTweetTexts ?: ArrayList()
+                        tweetUsers = topic.twitterTopicSearcher?.notifiedTweetUsers ?: ArrayList()
+                        notifyDataSetChanged()
+                    }
+                }
+                override fun onStarted() {
+                }
+            })
         }
 
         topicText = v.findViewById(R.id.text_topic)
         topicText.setText(topic.topicName)
         topicText.addTextChangedListener(object: TextWatcher {
-            var timer: Timer? = null
 
             override fun afterTextChanged(s: Editable?) {
                 val handler = Handler()
@@ -275,6 +298,10 @@ class TwitterTopicFragment : Fragment() {
         retweetSpinner.onItemSelectedListener = listenerRetweets
         retweetSpinner.setOnTouchListener(listenerRetweets)
 
+        if (topicText.text.toString() != "") {
+            updateMatchesAndTopTweet()
+        }
+
         return v
     }
 
@@ -297,7 +324,7 @@ class TwitterTopicFragment : Fragment() {
                     if (TopicList.getInstance(it)?.getTopic(topic.id) == null) {
                         if (!topic.firstNotificationShown && (topic.twitterTopicSearcher?.tweetResults?.size ?: 0) > 0) {
                             topTweetId = topic.twitterTopicSearcher?.tweetIds?.get(0)
-                            topTweetTitle = "New Tweet by " + topic.twitterTopicSearcher?.tweetResults?.get(0)?.user?.name
+                            topTweetTitle = "New Tweet by @" + topic.twitterTopicSearcher?.tweetResults?.get(0)?.user?.screenName
                             topTweetBody = topic.twitterTopicSearcher?.tweetResults?.get(0)?.text
                         }
                         if (topTweetId != null && !topic.firstNotificationShown) {
@@ -356,7 +383,55 @@ class TwitterTopicFragment : Fragment() {
         }
     }
 
+    inner class TweetHolder(inflater: LayoutInflater, parent: ViewGroup): RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_notified_topic, parent, false)) {
+        private val tweetTextView: TextView = itemView.findViewById(R.id.topic_text)
+        private val tweetUserTextView: TextView = itemView.findViewById(R.id.topic_poster)
 
+        init {
+            tweetTextView.movementMethod = LinkMovementMethod.getInstance()
+            tweetTextView.isClickable = true
+        }
+
+        @SuppressLint("SetTextI18n")
+        fun bind(tweetId: String, tweetUser: String, tweetText: String) {
+            tweetTextView.text = Html.fromHtml(
+                    "<a href=\"https://twitter.com/anyuser/status/$tweetId\">" +
+                    tweetText +
+                    "</a>")
+            tweetUserTextView.text = "From @$tweetUser"
+        }
+    }
+
+    inner class TweetAdapter: RecyclerView.Adapter<TweetHolder>() {
+        var tweetIds: List<String> = ArrayList()
+        var tweetTexts: List<String> = ArrayList()
+        var tweetUsers: List<String> = ArrayList()
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TweetHolder {
+            val layoutInflater = LayoutInflater.from(activity)
+            return TweetHolder(layoutInflater, parent)
+        }
+
+        override fun getItemCount(): Int {
+            return tweetIds.size
+        }
+
+        override fun onBindViewHolder(holder: TweetHolder, position: Int) {
+            var tweetId = ""
+            var tweetText = ""
+            var tweetUser = ""
+            try {
+                tweetId = tweetIds[position]
+                tweetText = tweetTexts[position]
+                tweetUser = tweetUsers[position]
+            } catch (e: IndexOutOfBoundsException) {
+                e.printStackTrace()
+            }
+
+            holder.bind(tweetId, tweetUser, tweetText)
+        }
+
+    }
 
     companion object {
         private const val ARG_TOPIC_ID = "arg_topic_id"

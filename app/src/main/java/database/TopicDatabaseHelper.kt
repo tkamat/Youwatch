@@ -24,8 +24,8 @@ class TopicDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     override fun onCreate(sqLiteDatabase: SQLiteDatabase) {
-        sqLiteDatabase.execSQL("create table ${TopicTable.NAME} (" +
-                " _id integer primary key autoincrement, " +
+        sqLiteDatabase.execSQL("CREATE TABLE ${TopicTable.NAME} (" +
+                " _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 TopicTable.Cols.TOPIC_TYPE + ", " +
                 TopicTable.Cols.UUID + ", " +
                 TopicTable.Cols.TOPIC + ", " +
@@ -40,8 +40,11 @@ class TopicDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     override fun onUpgrade(sqLiteDatabase: SQLiteDatabase, i: Int, i1: Int) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS ${TopicTable.NAME}")
-        onCreate(sqLiteDatabase)
+        if (i1 > i) {
+            sqLiteDatabase.execSQL("ALTER TABLE ${TopicTable.NAME} ADD COLUMN ${TopicTable.Cols.TOPIC_TYPE} TEXT DEFAULT 'youtube'")
+            sqLiteDatabase.execSQL("ALTER TABLE ${TopicTable.NAME} ADD COLUMN ${TopicTable.Cols.RETWEETS} INTEGER DEFAULT 0")
+            sqLiteDatabase.execSQL("ALTER TABLE ${TopicTable.NAME} ADD COLUMN ${TopicTable.Cols.TWEET_LIKES} INTEGER DEFAULT 0")
+        }
     }
 
     @Synchronized
