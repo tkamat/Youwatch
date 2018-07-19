@@ -65,6 +65,11 @@ class TwitterTopicSearcher(topic: TwitterTopic) {
                 .build()
         Twitter.initialize(config)
         val stringJoiner = Joiner.on(',')
+        for (tweetId in notifiedTweetIds) {
+            if (notifiedTweetIds.size > 100) {
+                notifiedTweetIds.remove(tweetId)
+            }
+        }
         val tweetIds = stringJoiner.join(notifiedTweetIds)
         val twitterApiClient = TwitterCore.getInstance().guestApiClient
         val statusesService = twitterApiClient.statusesService
