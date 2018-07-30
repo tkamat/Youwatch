@@ -56,7 +56,7 @@ object Util {
             channel.description = "Youtube notifications for Youwatch topics"
             notificationManager.createNotificationChannel(channel)
             val notification = Notification.Builder(context, YOUTUBE_CHANNEL_ID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_stat_name)
                     .setContentTitle(title)
                     .setContentText(body)
                     .setContentIntent(contentIntent)
@@ -65,7 +65,7 @@ object Util {
             notificationManager.notify(id, notification)
         } else {
             val notification = NotificationCompat.Builder(context)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_stat_name)
                     .setContentTitle(title)
                     .setContentText(body)
                     .setContentIntent(contentIntent)
@@ -86,7 +86,7 @@ object Util {
             channel.description = "Twitter notifications for Youwatch topics"
             notificationManager.createNotificationChannel(channel)
             val notification = Notification.Builder(context, TWITTER_CHANNEL_ID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_stat_name)
                     .setContentTitle(title)
                     .setContentText(body)
                     .setContentIntent(contentIntent)
@@ -95,7 +95,7 @@ object Util {
             notificationManager.notify(id, notification)
         } else {
             val notification = NotificationCompat.Builder(context)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_stat_name)
                     .setContentTitle(title)
                     .setContentText(body)
                     .setContentIntent(contentIntent)

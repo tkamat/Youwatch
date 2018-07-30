@@ -26,11 +26,11 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile('com.google.api-client:google-api-client-android:1.22.0') {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation('com.google.api-client:google-api-client-android:1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
-    compile('com.google.apis:google-api-services-youtube:v3-rev183-1.22.0') {
+    implementation('com.google.apis:google-api-services-youtube:v3-rev183-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {

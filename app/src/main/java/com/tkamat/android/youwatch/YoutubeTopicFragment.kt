@@ -234,7 +234,7 @@ class YoutubeTopicFragment : Fragment() {
                     if (TopicList.getInstance(it)?.getTopic(topic.id) == null) {
                         if (!topic.firstNotificationShown && (topic.youtubeTopicSearcher?.videoResults?.size ?: 0) > 0) {
                             topVideoID = topic.youtubeTopicSearcher?.videoIds?.get(0)
-                            topVideoTitle = "New from " + topic.youtubeTopicSearcher?.videoResults?.get(0)?.snippet?.channelTitle
+                            topVideoTitle = "New YouTube Video from" + topic.youtubeTopicSearcher?.videoResults?.get(0)?.snippet?.channelTitle
                             topVideoBody = topic.youtubeTopicSearcher?.videoResults?.get(0)?.snippet?.title
                         }
                         if (topVideoID != null && !topic.firstNotificationShown) {
