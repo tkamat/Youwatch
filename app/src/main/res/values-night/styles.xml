@@ -1,7 +1,7 @@
 <resources>
 
-    <!-- Base application theme - Material 3 -->
-    <style name="AppTheme" parent="Theme.Material3.Light">
+    <!-- Base application theme - Material 3 Dark -->
+    <style name="AppTheme" parent="Theme.Material3.Dark">
         <!-- Primary brand color -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryContainer">@color/colorPrimaryDark</item>
@@ -12,13 +12,6 @@
         <!-- Background and surface -->
         <item name="android:colorBackground">@color/backgroundColor</item>
         <item name="colorSurface">@color/surfaceColor</item>
-        <!-- Force action bar to use primary color -->
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
-        <item name="appBarLayoutStyle">@style/AppBarStyle</item>
-    </style>
-
-    <style name="AppBarStyle" parent="Widget.Material3.AppBarLayout">
-        <item name="android:background">@color/colorPrimary</item>
     </style>
 
 </resources>

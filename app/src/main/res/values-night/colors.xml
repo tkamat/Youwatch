@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="colorPrimary">#EF5350</color>
+    <color name="colorPrimaryDark">#C62828</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+
+    <!-- Secondary/Accent colors -->
+    <color name="colorAccent">#78909C</color>
+    <color name="colorAccentDark">#546E7A</color>
+
+    <!-- Background and surface colors (dark theme) -->
+    <color name="backgroundColor">#121212</color>
+    <color name="surfaceColor">#1E1E1E</color>
+    <color name="cardBackground">#2D2D2D</color>
+
+    <!-- Text colors (dark theme) -->
+    <color name="textPrimary">#FFFFFF</color>
+    <color name="textSecondary">#B3B3B3</color>
+
+    <!-- Utility colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="lightGrey">#424242</color>
+    <color name="blackSemiTransparent">#B2000000</color>
+    <color name="deleteRed">#EF5350</color>
+
+    <!-- Icon colors -->
+    <color name="iconOnPrimary">#FFFFFF</color>
+</resources>

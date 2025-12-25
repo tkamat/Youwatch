@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FF0000</color>
+    <!-- Primary colors -->
+    <color name="colorPrimary">#B71C1C</color>
     <color name="colorPrimaryDark">#8B0000</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+
+    <!-- Secondary/Accent colors -->
     <color name="colorAccent">#607D8B</color>
     <color name="colorAccentDark">#455A64</color>
+
+    <!-- Background and surface colors -->
+    <color name="backgroundColor">#FAFAFA</color>
+    <color name="surfaceColor">#FFFFFF</color>
+    <color name="cardBackground">#FFFFFF</color>
+
+    <!-- Text colors -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+
+    <!-- Utility colors -->
     <color name="white">#FFFFFF</color>
     <color name="lightGrey">#BDBDBD</color>
     <color name="blackSemiTransparent">#B2000000</color>
+    <color name="deleteRed">#F44336</color>
+
+    <!-- Icon colors -->
+    <color name="iconOnPrimary">#424242</color>
 </resources>

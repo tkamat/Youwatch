@@ -40,8 +40,8 @@
     </string>
     <string name="notified_video_list_header">Previous Notifications:</string>
     <string name="empty_screen_hint">Tap \"+\" to get started</string>
+    <string name="add_topic">Add topic</string>
     <string name="youtube">YouTube topic</string>
-    <string name="twitter">Twitter topic</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

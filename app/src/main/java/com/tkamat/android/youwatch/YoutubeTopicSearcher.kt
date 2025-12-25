@@ -4,7 +4,7 @@ import android.os.AsyncTask
 
 import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.DateTime
 import com.google.api.client.util.Joiner
 import com.google.api.services.youtube.YouTube
@@ -13,10 +13,9 @@ import com.google.api.services.youtube.model.Video
 
 import java.io.IOException
 import java.math.BigInteger
-import java.util.ArrayList
-import java.util.Calendar
+import java.util.*
 
-const val API_KEY = "AIzaSyB12Ik50RFYt4jixEcpNTSQ7hBT4d-JmjU"
+const val API_KEY = "AIzaSyCIfT5_KcgNYcfQhJvaJ-4VcQH25avuZ-w"
 const val NUMBER_OF_VIDEOS: Long = 50
 
 class YoutubeTopicSearcher(topic: YoutubeTopic) {
@@ -54,20 +53,20 @@ class YoutubeTopicSearcher(topic: YoutubeTopic) {
 
         override fun doInBackground(vararg params: Void?): Void? {
             val transport = NetHttpTransport()
-            val jsonFactory = JacksonFactory.getDefaultInstance()
+            val jsonFactory = GsonFactory.getDefaultInstance()
             youtube = YouTube.Builder(transport, jsonFactory, HttpRequestInitializer { }).setApplicationName("Youwatch").build()
             val cal = Calendar.getInstance()
             cal.add(Calendar.MONTH, -1)
 
             try {
-                val search = youtube?.search()?.list("id,snippet")
+                val search = youtube?.search()?.list(Collections.singletonList("id,snippet"))
                 search?.apply {
                     key = API_KEY
                     q = searchQuery
-                    type = "video"
+                    type = Collections.singletonList("video")
                     fields = "items(id/videoId)"
                     maxResults = NUMBER_OF_VIDEOS
-                    publishedAfter = DateTime(cal.time)
+                    publishedAfter = DateTime(cal.time).toString()
                     order = "viewCount"
                     relevanceLanguage = "en"
                 }
@@ -87,8 +86,8 @@ class YoutubeTopicSearcher(topic: YoutubeTopic) {
             try {
                 val listVideosQuery = youtube
                         ?.videos()
-                        ?.list("snippet, recordingDetails, statistics")
-                        ?.setId(videoIds)
+                        ?.list(Collections.singletonList("snippet, recordingDetails, statistics"))
+                        ?.setId(Collections.singletonList(videoIds))
                 listVideosQuery?.key = API_KEY
                 videoResults = listVideosQuery?.execute()?.items as? ArrayList<Video>
                 filterResults()
@@ -117,8 +116,8 @@ class YoutubeTopicSearcher(topic: YoutubeTopic) {
             try {
                 val listVideosQuery = youtube
                         ?.videos()
-                        ?.list("snippet, recordingDetails, statistics")
-                        ?.setId(videoIds)
+                        ?.list(Collections.singletonList("snippet, recordingDetails, statistics"))
+                        ?.setId(Collections.singletonList(videoIds))
                 listVideosQuery?.key = API_KEY
                 notifiedVideoList = listVideosQuery?.execute()?.items
             } catch (e: IOException) {

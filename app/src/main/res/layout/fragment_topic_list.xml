@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_height="match_parent" android:layout_width="match_parent"
-                                             xmlns:android="http://schemas.android.com/apk/res/android"
-                                             android:id="@+id/constraint_layout" >
-<!--
-    <android.support.design.widget.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            app:fabSize="normal" app:srcCompat="@android:drawable/ic_input_add" android:id="@+id/add_button"
-            android:layout_marginRight="16dp"
-            app:layout_constraintRight_toRightOf="@+id/topic_recycler_view"
-            android:tint="@color/cardview_light_background"
-            android:layout_marginEnd="16dp" app:layout_constraintBottom_toBottomOf="@+id/topic_recycler_view"
-            android:layout_marginBottom="16dp"/>
--->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:id="@+id/constraint_layout">
 
     <TextView
         android:id="@+id/emptyScreenHint"
@@ -28,67 +18,29 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.gms.ads.AdView
-            android:layout_width="wrap_content"
-            app:adSize="SMART_BANNER"
-            app:adUnitId="@string/banner_ad_unit_id"
-            android:layout_height="wrap_content" android:id="@+id/adView"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="0dp" android:layout_marginRight="0dp"
-            app:layout_constraintRight_toRightOf="parent" android:layout_marginLeft="0dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:visibility="gone"
-    >
-    </com.google.android.gms.ads.AdView>
-
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/topic_recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:paddingTop="24dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adView">
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </android.support.v7.widget.RecyclerView>
-
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
-        app:fab_addButtonColorNormal="@color/colorAccent"
-        app:fab_addButtonColorPressed="@color/colorAccentDark"
-        app:fab_expandDirection="up"
-        app:fab_labelsPosition="left"
-        app:fab_labelStyle="@style/menu_labels_style"
+        android:src="@android:drawable/ic_input_add"
+        android:contentDescription="@string/add_topic"
+        app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/youtubeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_colorNormal="@color/white"
-            app:fab_colorPressed="@color/lightGrey"
-            app:fab_icon="@drawable/yt_icon_rgb"
-            app:fab_title="@string/youtube"
-            app:fab_size="mini" />
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/twitterButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_colorNormal="@color/white"
-            app:fab_colorPressed="@color/lightGrey"
-            app:fab_title="@string/twitter"
-            app:fab_icon="@drawable/twitter_logo_blue"
-            app:fab_size="mini" />
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
-
-</android.support.constraint.ConstraintLayout>
-
+</androidx.constraintlayout.widget.ConstraintLayout>

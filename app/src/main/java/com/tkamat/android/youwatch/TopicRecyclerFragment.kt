@@ -1,15 +1,12 @@
 package com.tkamat.android.youwatch
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -24,20 +21,19 @@ import java.util.UUID
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
-import android.util.Log
-import com.getbase.floatingactionbutton.FloatingActionsMenu
-import com.twitter.sdk.android.core.DefaultLogger
-import com.twitter.sdk.android.core.Twitter
-import com.twitter.sdk.android.core.TwitterAuthConfig
-import com.twitter.sdk.android.core.TwitterConfig
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.materialswitch.MaterialSwitch
+import com.tkamat.android.youwatch.databinding.FragmentTopicListBinding
+import com.tkamat.android.youwatch.databinding.ListItemYoutubeTopicBinding
 
 class TopicRecyclerFragment : Fragment() {
-    private lateinit var constraintLayout: ConstraintLayout
-    private lateinit var topicRecyclerView: RecyclerView
-    private lateinit var fam: FloatingActionsMenu
-    private lateinit var youtubeFAB: com.getbase.floatingactionbutton.FloatingActionButton
-    private lateinit var twitterFAB: com.getbase.floatingactionbutton.FloatingActionButton
-    private lateinit var emptyScreenHint: TextView
+    private var _binding: FragmentTopicListBinding? = null
+    private val binding get() = _binding!!
     private var topicAdapter: TopicAdapter? = null
 
     private val isFirstTime: Boolean
@@ -85,84 +81,58 @@ class TopicRecyclerFragment : Fragment() {
 
             return false
         }
-    //    private AdView mAdView;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater?.inflate(R.menu.fragment_topic_recycler, menu)
+        inflater.inflate(R.menu.fragment_topic_recycler, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             R.id.help_button -> showHelpDialog()
         }
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.fragment_topic_list, container, false)
-        constraintLayout = v.findViewById(R.id.constraint_layout) as ConstraintLayout
-        fam = v.findViewById(R.id.add_button) as FloatingActionsMenu
-        youtubeFAB = v.findViewById(R.id.youtubeButton) as com.getbase.floatingactionbutton.FloatingActionButton
-        youtubeFAB.setOnClickListener {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentTopicListBinding.inflate(inflater, container, false)
+
+        binding.addButton.setOnClickListener {
             activity?.let {
                 if ((TopicList.getInstance(it)?.enabledTopics?.size ?: 0) <= 10) {
-                    val intent = TopicPickerActivity.newIntent(it, UUID.randomUUID(), "youtube")
+                    val intent = TopicPickerActivity.newIntent(it, UUID.randomUUID())
                     startActivity(intent)
                 } else {
                     Toast.makeText(it, getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show()
                 }
             }
         }
-        twitterFAB = v.findViewById(R.id.twitterButton) as com.getbase.floatingactionbutton.FloatingActionButton
-        twitterFAB.setOnClickListener {
-            activity?.let {
-                if ((TopicList.getInstance(it)?.enabledTopics?.size ?: 0) <= 10) {
-                    val intent = TopicPickerActivity.newIntent(it, UUID.randomUUID(), "twitter")
-                    startActivity(intent)
-                } else {
-                    Toast.makeText(it, getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        //        mAdView = (AdView) v.findViewById(R.id.adView);
-        //        AdRequest adRequest = new AdRequest.Builder().addTestDevice("BA648A93396B1115DEF0054041E7E8EB").build();
-        //        mAdView.loadAd(adRequest);
-        //        mAdView.setAdListener(new AdListener() {
-        //            @Override
-        //            public void onAdFailedToLoad(int i) {
-        //                super.onAdFailedToLoad(i);
-        //            }
-        //
-        //            @Override
-        //            public void onAdLoaded() {
-        //                mAdView.setVisibility(View.VISIBLE);
-        //                super.onAdLoaded();
-        //            }
-        //        });
-        topicRecyclerView = v.findViewById(R.id.topic_recycler_view) as RecyclerView
-        topicRecyclerView.layoutManager = LinearLayoutManager(activity)
-        topicRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                if (dy > 0 || dy < 0 && fam.isShown) {
-//                    fam.visibility = View.VISIBLE
+
+        binding.topicRecyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.topicRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    binding.addButton.hide()
+                } else if (dy < 0) {
+                    binding.addButton.show()
                 }
             }
 
-            override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    fam.visibility = View.GONE
+                    binding.addButton.show()
                 }
-
                 super.onScrollStateChanged(recyclerView, newState)
             }
         })
-        emptyScreenHint = v.findViewById(R.id.emptyScreenHint) as TextView
+
+        // Setup swipe-to-delete
+        setupSwipeToDelete()
 
         updateUI()
 
@@ -176,7 +146,74 @@ class TopicRecyclerFragment : Fragment() {
         activity?.let {
             Util.scheduleJob(it)
         }
-        return v
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun setupSwipeToDelete() {
+        val swipeHandler = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            private val deleteBackground = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.deleteRed))
+            private val deleteIcon = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_delete)
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val topics = TopicList.getInstance(requireContext())?.topics
+                topics?.getOrNull(position)?.let { topic ->
+                    TopicList.getInstance(requireContext())?.deleteTopic(topic.id)
+                    updateUI()
+                    Toast.makeText(context, "Topic deleted", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val itemView = viewHolder.itemView
+                val iconMargin = (itemView.height - (deleteIcon?.intrinsicHeight ?: 0)) / 2
+
+                if (dX < 0) {
+                    // Swiping left - draw red background
+                    deleteBackground.setBounds(
+                        itemView.right + dX.toInt(),
+                        itemView.top,
+                        itemView.right,
+                        itemView.bottom
+                    )
+                    deleteBackground.draw(c)
+
+                    // Draw delete icon
+                    deleteIcon?.let {
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + it.intrinsicHeight
+                        val iconRight = itemView.right - iconMargin
+                        val iconLeft = iconRight - it.intrinsicWidth
+                        it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        it.setTint(Color.WHITE)
+                        it.draw(c)
+                    }
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+
+        ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.topicRecyclerView)
     }
 
     override fun onResume() {
@@ -196,7 +233,7 @@ class TopicRecyclerFragment : Fragment() {
         if (topicAdapter == null) {
             topics?.let {
                 topicAdapter = TopicAdapter(it)
-                topicRecyclerView.adapter = topicAdapter
+                binding.topicRecyclerView.adapter = topicAdapter
             }
         } else {
             topics?.let {
@@ -207,21 +244,21 @@ class TopicRecyclerFragment : Fragment() {
 
         activity?.let {
             if (TopicList.getInstance(it)?.topics?.size == 0) {
-                emptyScreenHint.visibility = View.VISIBLE
+                binding.emptyScreenHint.visibility = View.VISIBLE
             } else {
-                emptyScreenHint.visibility = View.GONE
+                binding.emptyScreenHint.visibility = View.GONE
             }
         }
     }
 
     private fun hideViews() {
-        topicRecyclerView.visibility = View.GONE
-        fam.visibility = View.GONE
+        binding.topicRecyclerView.visibility = View.GONE
+        binding.addButton.visibility = View.GONE
     }
 
     private fun showViews() {
-        topicRecyclerView.visibility = View.VISIBLE
-        fam.visibility = View.VISIBLE
+        binding.topicRecyclerView.visibility = View.VISIBLE
+        binding.addButton.visibility = View.VISIBLE
     }
 
     private fun showHelpDialog() {
@@ -256,12 +293,8 @@ class TopicRecyclerFragment : Fragment() {
         }
     }
 
-    private inner class YoutubeTopicHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_youtube_topic, parent, false)) {
+    private inner class YoutubeTopicHolder(private val itemBinding: ListItemYoutubeTopicBinding) : RecyclerView.ViewHolder(itemBinding.root) {
         private var topic: YoutubeTopic? = null
-        private val topicText: TextView = itemView.findViewById<View>(R.id.topic_text) as TextView
-        private val minimumViews: TextView = itemView.findViewById<View>(R.id.minimum_views) as TextView
-        private val switch: Switch = itemView.findViewById<View>(R.id.enabled_switch) as Switch
-        private val constraintLayout: ConstraintLayout = itemView.findViewById<View>(R.id.constraint_layout) as ConstraintLayout
 
         init {
             class SwitchListener : CompoundButton.OnCheckedChangeListener, View.OnTouchListener {
@@ -277,17 +310,12 @@ class TopicRecyclerFragment : Fragment() {
                         if (userSelect) {
                             if (TopicList.getInstance(it)?.enabledTopics?.size ?: 0 <= 10) {
                                 topic?.enabled = b
-                                if (b)
-                                    Toast.makeText(it, getString(R.string.toast_enabled), Toast.LENGTH_SHORT).show()
-                                else
-                                    Toast.makeText(it, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
                             } else if (b) {
                                 Toast.makeText(it, getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show()
                                 userSelect = false
-                                switch.isChecked = false
+                                itemBinding.enabledSwitch.isChecked = false
                             } else if (!b) {
                                 topic?.enabled = false
-                                Toast.makeText(it, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -301,133 +329,43 @@ class TopicRecyclerFragment : Fragment() {
             }
 
             val listener = SwitchListener()
-            switch.setOnCheckedChangeListener(listener)
-            switch.setOnTouchListener(listener)
+            itemBinding.enabledSwitch.setOnCheckedChangeListener(listener)
+            itemBinding.enabledSwitch.setOnTouchListener(listener)
 
-            constraintLayout.setOnClickListener {
+            itemBinding.constraintLayout.setOnClickListener {
                 hideViews()
                 activity?.let { a ->
                     topic?.let { t ->
-                        val intent = TopicPickerActivity.newIntent(a, t.id, "youtube")
+                        val intent = TopicPickerActivity.newIntent(a, t.id)
                         startActivity(intent)
                     }
                 }
             }
         }
-
 
         fun bind(topic: YoutubeTopic) {
             this.topic = topic
-            topicText.text = this.topic?.topicName
-            minimumViews.text = this.topic?.minViews.toString() + " views minimum"
-            switch.isChecked = (this.topic?.enabled ?: true)
-        }
-    }
-
-    private inner class TwitterTopicHolder(inflater: LayoutInflater, parent: ViewGroup) : RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_twitter_topic, parent, false)) {
-        private var topic: TwitterTopic? = null
-        private val topicText: TextView = itemView.findViewById<View>(R.id.topic_text) as TextView
-        private val minimumLikesAndRetweets: TextView = itemView.findViewById<View>(R.id.minimum_likes_and_retweets) as TextView
-        private val switch: Switch = itemView.findViewById<View>(R.id.enabled_switch) as Switch
-        private val constraintLayout: ConstraintLayout = itemView.findViewById<View>(R.id.constraint_layout) as ConstraintLayout
-
-        init {
-            class SwitchListener : CompoundButton.OnCheckedChangeListener, View.OnTouchListener {
-                var userSelect = false
-
-                override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
-                    userSelect = true
-                    return false
-                }
-
-                override fun onCheckedChanged(compoundButton: CompoundButton, b: Boolean) {
-                    activity?.let {
-                        if (userSelect) {
-                            if (TopicList.getInstance(it)?.enabledTopics?.size ?: 0 <= 10) {
-                                topic?.enabled = b
-                                if (b)
-                                    Toast.makeText(it, getString(R.string.toast_enabled), Toast.LENGTH_SHORT).show()
-                                else
-                                    Toast.makeText(it, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
-                            } else if (b) {
-                                Toast.makeText(it, getString(R.string.limit_reached_toast), Toast.LENGTH_SHORT).show()
-                                userSelect = false
-                                switch.isChecked = false
-                            } else if (!b) {
-                                topic?.enabled = false
-                                Toast.makeText(it, getString(R.string.toast_disabled), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                    activity?.let { a ->
-                        topic?.let {t ->
-                            TopicList.getInstance(a)?.updateTopic(t)
-                        }
-                    }
-                    userSelect = false
-                }
-            }
-
-            val listener = SwitchListener()
-            switch.setOnCheckedChangeListener(listener)
-            switch.setOnTouchListener(listener)
-
-            constraintLayout.setOnClickListener {
-                hideViews()
-                activity?.let { a ->
-                    topic?.let { t ->
-                        val intent = TopicPickerActivity.newIntent(a, t.id, "twitter")
-                        startActivity(intent)
-                    }
-                }
-            }
-        }
-
-
-        @SuppressLint("SetTextI18n")
-        fun bind(topic: TwitterTopic) {
-            this.topic = topic
-            topicText.text = this.topic?.topicName
-            minimumLikesAndRetweets.text = "${topic.minLikes} likes, ${topic.minRetweets} retweets minimum"
-            switch.isChecked = (this.topic?.enabled ?: true)
+            itemBinding.topicText.text = this.topic?.topicName
+            itemBinding.minimumViews.text = "${this.topic?.minViews} views minimum"
+            itemBinding.enabledSwitch.isChecked = (this.topic?.enabled ?: true)
         }
     }
 
     private inner class TopicAdapter(private var topics: List<Topic>?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            val layoutInflater = LayoutInflater.from(activity)
-            return when (viewType) {
-                0 -> YoutubeTopicHolder(layoutInflater, parent)
-                1 -> TwitterTopicHolder(layoutInflater, parent)
-                else -> throw IllegalArgumentException("Invalid view type")
-            }
+            val itemBinding = ListItemYoutubeTopicBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return YoutubeTopicHolder(itemBinding)
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             val topic = topics?.get(position)
-            when (holder.itemViewType) {
-                0 -> {
-                    val holder = holder as? YoutubeTopicHolder
-                    holder?.bind(topic as? YoutubeTopic ?: YoutubeTopic("", 0))
-                }
-                1 -> {
-                    val holder = holder as? TwitterTopicHolder
-                    holder?.bind(topic as? TwitterTopic ?: TwitterTopic("", 0, 0))
-                }
-            }
+            val youtubeHolder = holder as? YoutubeTopicHolder
+            youtubeHolder?.bind(topic as? YoutubeTopic ?: YoutubeTopic("", 0))
         }
 
         override fun getItemCount(): Int {
             return topics?.size ?: 0
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            return when (topics?.get(position)) {
-                is YoutubeTopic -> 0
-                is TwitterTopic -> 1
-                else -> throw IllegalArgumentException("Topic type not supported")
-            }
         }
 
         fun setTopics(topics: List<Topic>) {
@@ -444,6 +382,4 @@ class TopicRecyclerFragment : Fragment() {
             return fragment
         }
     }
-
-
 }

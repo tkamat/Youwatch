@@ -16,12 +16,14 @@ class TopicList private constructor(context: Context) {
     val topics: List<Topic>
         get() {
             val topics = ArrayList<Topic>()
-            val cursor = queryTopics(
-                    null, null)
+            val cursor = queryTopics(null, null)
             cursor?.use {
                 it.moveToFirst()
                 while (!it.isAfterLast) {
-                    topics.add(it.topic)
+                    val topic = it.topic
+                    if (topic != null) {
+                        topics.add(topic)
+                    }
                     it.moveToNext()
                 }
             }
@@ -67,7 +69,6 @@ class TopicList private constructor(context: Context) {
     fun updateTopic(topic: Topic) {
         val uuidString = topic.id.toString()
         val values = getContentValues(topic)
-
         database?.update(TopicTable.NAME, values, TopicTable.Cols.UUID + " = ?", arrayOf(uuidString))
     }
 
@@ -119,23 +120,14 @@ class TopicList private constructor(context: Context) {
             val previousNotifications = topic.previousNotifications
             val inputString2 = gson.toJson(previousNotifications)
             values.put(TopicTable.Cols.PREVIOUS_NOTIFICATIONS, inputString2)
-            when (topic) {
-                is YoutubeTopic -> {
-                    values.put(TopicTable.Cols.VIEWS, topic.minViews)
-                    val videoIDs = topic.youtubeTopicSearcher?.videoIds
-                    val inputString1 = gson.toJson(videoIDs)
-                    values.put(TopicTable.Cols.TOPIC_IDS, inputString1)
-                }
-                is TwitterTopic -> {
-                    values.put(TopicTable.Cols.RETWEETS, topic.minRetweets)
-                    values.put(TopicTable.Cols.TWEET_LIKES, topic.minLikes)
-                    val tweetIds = topic.twitterTopicSearcher?.tweetIds
-                    val inputString1 = gson.toJson(tweetIds)
-                    values.put(TopicTable.Cols.TOPIC_IDS, inputString1)
-                }
+
+            if (topic is YoutubeTopic) {
+                values.put(TopicTable.Cols.VIEWS, topic.minViews)
+                val videoIDs = topic.youtubeTopicSearcher?.videoIds
+                val inputString1 = gson.toJson(videoIDs)
+                values.put(TopicTable.Cols.TOPIC_IDS, inputString1)
             }
             return values
         }
     }
-
 }

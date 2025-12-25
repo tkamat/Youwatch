@@ -1,9 +1,8 @@
 package com.tkamat.android.youwatch
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 
 /**
  * @author Tushaar Kamat
@@ -21,7 +20,7 @@ class TopicRecyclerActivity : AppCompatActivity() {
 
         fragment ?: run {
             fragment = TopicRecyclerFragment.newInstance()
-            fm.beginTransaction().add(R.id.fragment_container, fragment).commit()
+            fm.beginTransaction().add(R.id.fragment_container, fragment as TopicRecyclerFragment).commit()
         }
     }
 
